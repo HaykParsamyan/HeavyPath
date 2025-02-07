@@ -9,7 +9,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
-public class MainActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity {
 
     private EditText usernameEditText;
     private EditText passwordEditText;
@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_login);
 
         usernameEditText = findViewById(R.id.username);
         passwordEditText = findViewById(R.id.password);
@@ -29,33 +29,40 @@ public class MainActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                login();
+                loginUser();
             }
         });
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openRegisterActivity();
+                // Navigate to RegisterActivity
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
             }
         });
     }
 
-    private void login() {
+    private void loginUser() {
         String username = usernameEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
 
-        if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
-            Toast.makeText(MainActivity.this, "Please enter username and password", Toast.LENGTH_SHORT).show();
+        if (TextUtils.isEmpty(username)) {
+            usernameEditText.setError("Username is required");
             return;
         }
 
-        // Here you can add your authentication logic
-        Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
-    }
+        if (TextUtils.isEmpty(password)) {
+            passwordEditText.setError("Password is required");
+            return;
+        }
 
-    private void openRegisterActivity() {
-        Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+        // You can add your login logic here (e.g., check credentials from the server)
+
+        // For demonstration, let's assume the login is always successful
+        // Navigate to MainHomeActivity
+        Intent intent = new Intent(LoginActivity.this, MainHomeActivity.class);
         startActivity(intent);
+        finish(); // Optional: finish the LoginActivity so the user cannot go back to it
     }
 }

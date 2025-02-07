@@ -1,21 +1,51 @@
-<LinearLayout
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:fillViewport="true"
+    android:background="@color/white">
 
-    <EditText
-        android:id="@+id/verification_code"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Verification Code"
-        android:inputType="number" />
+        android:padding="16dp"
+        android:gravity="center">
 
-    <Button
-        android:id="@+id/confirm_button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Confirm"
-        android:layout_marginTop="16dp" />
-</LinearLayout>
+        <!-- Welcome Text -->
+        <TextView
+            android:id="@+id/welcomeTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:text="WELCOME"
+            android:textColor="@color/black"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Verification Code EditText -->
+        <EditText
+            android:id="@+id/verification_code"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter 6-digit verification code"
+            android:inputType="number"
+            android:maxLength="6"
+            android:padding="12dp"
+            android:background="@drawable/edit_text_background"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Confirm Button -->
+        <Button
+            android:id="@+id/confirm_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Confirm"
+            android:background="@color/primaryColor"
+            android:textColor="@color/white"
+            android:padding="16dp" />
+
+    </LinearLayout>
+</ScrollView>

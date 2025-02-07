@@ -13,28 +13,17 @@
         android:padding="16dp"
         android:gravity="center">
 
-        <!-- App Title -->
+        <!-- Welcome Text -->
         <TextView
-            android:id="@+id/appTitleTextView"
+            android:id="@+id/welcomeTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="Heavy Machinery Rental"
+            android:text="WELCOME"
             android:textColor="@color/black"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginBottom="24dp" />
-
-        <!-- Username EditText -->
-        <EditText
-            android:id="@+id/username"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Username"
-            android:inputType="text"
-            android:padding="12dp"
-            android:background="@drawable/edit_text_background"
-            android:layout_marginBottom="16dp" />
 
         <!-- Email EditText -->
         <EditText
@@ -69,17 +58,15 @@
             android:background="@drawable/edit_text_background"
             android:layout_marginBottom="24dp" />
 
-        <!-- Register Button -->
+        <!-- Confirm Button -->
         <Button
-            android:id="@+id/register_button"
+            android:id="@+id/confirm_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Register"
-            android:background="@color/secondaryColor"
+            android:text="Confirm"
+            android:background="@color/primaryColor"
             android:textColor="@color/white"
-            android:padding="16dp"
-            android:layout_marginBottom="8dp" />
+            android:padding="16dp" />
 
     </LinearLayout>
 </ScrollView>
-

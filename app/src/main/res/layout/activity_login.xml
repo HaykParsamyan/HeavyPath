@@ -36,17 +36,6 @@
             android:background="@drawable/edit_text_background"
             android:layout_marginBottom="16dp" />
 
-        <!-- Email EditText -->
-        <EditText
-            android:id="@+id/email"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Email"
-            android:inputType="textEmailAddress"
-            android:padding="12dp"
-            android:background="@drawable/edit_text_background"
-            android:layout_marginBottom="16dp" />
-
         <!-- Password EditText -->
         <EditText
             android:id="@+id/password"
@@ -56,18 +45,18 @@
             android:inputType="textPassword"
             android:padding="12dp"
             android:background="@drawable/edit_text_background"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="24dp" />
 
-        <!-- Confirm Password EditText -->
-        <EditText
-            android:id="@+id/confirm_password"
+        <!-- Login Button -->
+        <Button
+            android:id="@+id/login_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Confirm Password"
-            android:inputType="textPassword"
-            android:padding="12dp"
-            android:background="@drawable/edit_text_background"
-            android:layout_marginBottom="24dp" />
+            android:text="Login"
+            android:background="@color/primaryColor"
+            android:textColor="@color/white"
+            android:padding="16dp"
+            android:layout_marginBottom="8dp" />
 
         <!-- Register Button -->
         <Button
@@ -82,4 +71,3 @@
 
     </LinearLayout>
 </ScrollView>
-

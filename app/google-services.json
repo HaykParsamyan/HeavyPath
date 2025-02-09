@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "699694995469",
+    "project_id": "heavypath-8d6ab",
+    "storage_bucket": "heavypath-8d6ab.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:699694995469:android:79ed2acb21a38880af1d44",
+        "android_client_info": {
+          "package_name": "com.example.heavypath_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2QgNO4UVbTW3V3W7CsyyMyzzl6xe8jPM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

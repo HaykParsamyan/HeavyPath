@@ -3,81 +3,80 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainHomeActivity"
-    android:padding="16dp"
-    android:background="@color/white">
+    android:background="@color/yellow"
+    tools:context=".MainHomeActivity">
 
-    <!-- Title -->
-    <TextView
-        android:id="@+id/title"
+    <!-- Profile Button in Top Right -->
+    <Button
+        android:id="@+id/profile_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Main Home"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="32dp" />
+        android:background="@color/white"
+        android:text="Profile"
+        android:textColor="@color/black"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp" />
 
-    <!-- Center Below Buttons -->
-    <LinearLayout
-        android:id="@+id/center_buttons"
-        android:layout_width="match_parent"
+    <!-- Tractor Logo in the Center -->
+    <ImageView
+        android:id="@+id/tractor_logo"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_centerInParent="true"
+        android:src="@drawable/ic_tractor" />
+
+    <!-- Settings Button -->
+    <Button
+        android:id="@+id/settings_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:text="Settings"
+        android:textColor="@color/black"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:padding="16dp"
-        android:background="@drawable/bottom_panel_background">
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_alignParentStart="true" />
 
-        <!-- Settings Button -->
-        <Button
-            android:id="@+id/settings_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="SETTINGS"
-            android:background="@drawable/button_background"
-            android:textColor="@color/white" />
+    <!-- Button At -->
+    <Button
+        android:id="@+id/button_at"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:text="Button At"
+        android:textColor="@color/black"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:layout_toEndOf="@id/settings_button"
+        android:layout_marginStart="16dp" />
 
-        <!-- Button@ -->
-        <Button
-            android:id="@+id/button_at"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="BUTTON@"
-            android:background="@drawable/button_background"
-            android:textColor="@color/white" />
+    <!-- Plus Button -->
+    <Button
+        android:id="@+id/plus_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:text="Post Announcement"
+        android:textColor="@color/black"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:layout_toEndOf="@id/button_at"
+        android:layout_marginStart="16dp" />
 
-        <!-- Center + Button -->
-        <Button
-            android:id="@+id/plus_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="+"
-            android:background="@drawable/plus_button_background"
-            android:textColor="@color/white"
-            android:layout_margin="8dp" />
+    <!-- Chat Button -->
+    <Button
+        android:id="@+id/chat_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/white"
+        android:text="Chat"
+        android:textColor="@color/black"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="16dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="16dp" />
 
-        <!-- Chat Button -->
-        <Button
-            android:id="@+id/chat_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="CHAT"
-            android:background="@drawable/button_background"
-            android:textColor="@color/white" />
-
-        <!-- Profile Button -->
-        <Button
-            android:id="@+id/profile_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="PROFILE"
-            android:background="@drawable/button_background"
-            android:textColor="@color/white" />
-    </LinearLayout>
 </RelativeLayout>

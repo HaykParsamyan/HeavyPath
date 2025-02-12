@@ -10,6 +10,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import java.io.File;
@@ -22,6 +23,11 @@ public class ProfileActivity extends AppCompatActivity {
 
     private ImageView profileImage;
     private TextView usernameTextView;
+    private TextView notificationSettings;
+    private TextView languageSettings;
+    private TextView securitySettings;
+    private TextView aboutCreators;
+
     private static final int REQUEST_IMAGE_CAPTURE = 1;
     private static final int PICK_IMAGE = 2;
     private String currentPhotoPath = "";
@@ -33,12 +39,23 @@ public class ProfileActivity extends AppCompatActivity {
 
         profileImage = findViewById(R.id.profile_image);
         usernameTextView = findViewById(R.id.username);
+        notificationSettings = findViewById(R.id.notification_settings);
+        languageSettings = findViewById(R.id.language);
+        securitySettings = findViewById(R.id.security);
+        aboutCreators = findViewById(R.id.about_creators);
 
         // Set username
         String username = getIntent().getStringExtra("USERNAME");
-        usernameTextView.setText(username);
+        if (username != null) {
+            usernameTextView.setText(username);
+        }
 
+        // Set onClickListeners for settings
         profileImage.setOnClickListener(v -> showImagePickerDialog());
+        notificationSettings.setOnClickListener(v -> openNotificationSettings());
+        languageSettings.setOnClickListener(v -> openLanguageSettings());
+        securitySettings.setOnClickListener(v -> openSecuritySettings());
+        aboutCreators.setOnClickListener(v -> openAboutCreators());
     }
 
     private void showImagePickerDialog() {
@@ -68,7 +85,7 @@ public class ProfileActivity extends AppCompatActivity {
             try {
                 photoFile = createImageFile();
             } catch (IOException ex) {
-                // Error occurred while creating the File
+                Toast.makeText(this, "Error occurred while creating the file", Toast.LENGTH_SHORT).show();
             }
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this, "com.example.heavypath_project.fileprovider", photoFile);
@@ -106,5 +123,25 @@ public class ProfileActivity extends AppCompatActivity {
             Uri selectedImage = data.getData();
             profileImage.setImageURI(selectedImage);
         }
+    }
+
+    private void openNotificationSettings() {
+        // Add code to open notification settings
+        Toast.makeText(this, "Notification settings clicked", Toast.LENGTH_SHORT).show();
+    }
+
+    private void openLanguageSettings() {
+        // Add code to open language settings
+        Toast.makeText(this, "Language settings clicked", Toast.LENGTH_SHORT).show();
+    }
+
+    private void openSecuritySettings() {
+        // Add code to open security settings
+        Toast.makeText(this, "Security settings clicked", Toast.LENGTH_SHORT).show();
+    }
+
+    private void openAboutCreators() {
+        // Add code to open about creators screen
+        Toast.makeText(this, "About creators clicked", Toast.LENGTH_SHORT).show();
     }
 }

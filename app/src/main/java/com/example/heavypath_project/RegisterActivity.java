@@ -1,20 +1,18 @@
 package com.example.heavypath_project;
 
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import org.json.JSONObject;
+import java.util.Random;
 
 public class RegisterActivity extends AppCompatActivity {
+
+    private static final String TAG = "RegisterActivity";
 
     private EditText usernameEditText;
     private EditText emailEditText;
@@ -73,47 +71,19 @@ public class RegisterActivity extends AppCompatActivity {
         }
 
         // Send verification code to the user's email
-        new SendVerificationCodeTask().execute(email);
+        String verificationCode = generateVerificationCode();
+        JavaMailAPI.sendVerificationEmail(email, verificationCode);
+
+        // Log the email and verification code for debugging purposes
+        Log.d(TAG, "Sending verification code to: " + email);
+        Log.d(TAG, "Verification code: " + verificationCode);
+
+        // Proceed to the next activity (e.g., VerificationActivity) if needed
     }
 
-    private class SendVerificationCodeTask extends AsyncTask<String, Void, Boolean> {
-
-        @Override
-        protected Boolean doInBackground(String... params) {
-            String email = params[0];
-            try {
-                URL url = new URL("http://localhost:3000/register");  // Replace with your server's address
-                HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json; utf-8");
-                conn.setRequestProperty("Accept", "application/json");
-                conn.setDoOutput(true);
-
-                JSONObject json = new JSONObject();
-                json.put("email", email);
-
-                try (OutputStream os = conn.getOutputStream()) {
-                    byte[] input = json.toString().getBytes("utf-8");
-                    os.write(input, 0, input.length);
-                }
-
-                int responseCode = conn.getResponseCode();
-                return responseCode == 200;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return false;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(Boolean success) {
-            if (success) {
-                Intent intent = new Intent(RegisterActivity.this, VerificationActivity.class);
-                intent.putExtra("email", emailEditText.getText().toString().trim());
-                startActivity(intent);
-            } else {
-                Toast.makeText(RegisterActivity.this, "Failed to send verification code", Toast.LENGTH_SHORT).show();
-            }
-        }
+    private String generateVerificationCode() {
+        Random random = new Random();
+        int code = 100000 + random.nextInt(900000); // Generate a 6-digit random code
+        return String.valueOf(code);
     }
 }

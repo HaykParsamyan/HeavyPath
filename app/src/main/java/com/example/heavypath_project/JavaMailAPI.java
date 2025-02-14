@@ -15,7 +15,7 @@ public class JavaMailAPI {
 
     private static final String TAG = "JavaMailAPI";
     private static final String EMAIL = "heavypath@mail.ru"; // Your email address
-    private static final String PASSWORD = "Vkwmsmqt0au2SDw6hFwV"; // Your email password
+    private static final String PASSWORD = "5z7vjqYqcuxaKf5hkD6b"; // Your email password
 
     public static void sendVerificationEmail(String recipientEmail, String verificationCode) {
         new SendEmailTask().execute(recipientEmail, verificationCode);
@@ -30,7 +30,7 @@ public class JavaMailAPI {
             Properties props = new Properties();
             props.put("mail.smtp.auth", "true");
             props.put("mail.smtp.starttls.enable", "true");
-            props.put("mail.smtp.host", "smtp.gmail.com");
+            props.put("mail.smtp.host", "smtp.mail.ru");
             props.put("mail.smtp.port", "587");
 
             Session session = Session.getInstance(props, new javax.mail.Authenticator() {
@@ -46,14 +46,25 @@ public class JavaMailAPI {
                 message.setSubject("Email Verification");
                 message.setText("Your verification code is: " + verificationCode);
 
+                Log.d(TAG, "Attempting to send email to " + recipientEmail);
                 Transport.send(message);
+                Log.d(TAG, "Email sent successfully to " + recipientEmail);
                 return true;
             } catch (MessagingException e) {
                 e.printStackTrace();
-                // Log the exception details for debugging
                 Log.e(TAG, "Failed to send email: " + e.getMessage());
                 return false;
             }
         }
+
+        @Override
+        protected void onPostExecute(Boolean success) {
+            if (success) {
+                Log.d(TAG, "Verification email sent successfully");
+            } else {
+                Log.e(TAG, "Failed to send verification email");
+            }
+        }
     }
 }
+

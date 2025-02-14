@@ -78,6 +78,7 @@ public class RegisterActivity extends AppCompatActivity {
         Log.d(TAG, "Sending verification code to: " + email);
         Log.d(TAG, "Verification code: " + verificationCode);
 
+        Toast.makeText(RegisterActivity.this, "Verification email sent", Toast.LENGTH_SHORT).show();
         // Proceed to the next activity (e.g., VerificationActivity) if needed
     }
 

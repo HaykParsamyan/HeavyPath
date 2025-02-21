@@ -7,7 +7,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -20,6 +28,9 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText confirmPasswordEditText;
     private Button registerButton;
 
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +41,9 @@ public class RegisterActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password);
         confirmPasswordEditText = findViewById(R.id.confirm_password);
         registerButton = findViewById(R.id.register_button);
+
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
 
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,16 +84,36 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        // Send verification code to the user's email
-        String verificationCode = generateVerificationCode();
-        JavaMailAPI.sendVerificationEmail(email, verificationCode);
+        Log.d(TAG, "Creating user with email: " + email);
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "User created successfully");
+                    saveUserToFirestore(username, email);
+                } else {
+                    Log.d(TAG, "Registration failed: " + task.getException().getMessage());
+                    Toast.makeText(RegisterActivity.this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 
-        // Log the email and verification code for debugging purposes
-        Log.d(TAG, "Sending verification code to: " + email);
-        Log.d(TAG, "Verification code: " + verificationCode);
+    private void saveUserToFirestore(String username, String email) {
+        Map<String, Object> user = new HashMap<>();
+        user.put("username", username);
+        user.put("email", email);
 
-        Toast.makeText(RegisterActivity.this, "Verification email sent", Toast.LENGTH_SHORT).show();
-        // Proceed to the next activity (e.g., VerificationActivity) if needed
+        db.collection("users").document(email).set(user).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(RegisterActivity.this, "User registered successfully", Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(RegisterActivity.this, "Error saving user data: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private String generateVerificationCode() {

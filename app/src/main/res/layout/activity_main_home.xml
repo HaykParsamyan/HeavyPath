@@ -27,6 +27,12 @@
         android:layout_centerInParent="true"
         android:src="@drawable/ic_tractor" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewAnnouncements"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/profile_button" />
+
     <!-- Settings Button -->
     <Button
         android:id="@+id/settings_button"

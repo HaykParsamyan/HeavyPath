@@ -15,12 +15,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import java.io.IOException;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainHomeActivity extends AppCompatActivity {
 
@@ -37,6 +41,9 @@ public class MainHomeActivity extends AppCompatActivity {
     private ImageButton buttonUploadImage;
     private ImageButton buttonCaptureImage;
     private AlertDialog postDialog;
+    private RecyclerView recyclerViewAnnouncements;
+    private AnnouncementAdapter announcementAdapter;
+    private List<Announcement> announcementList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +63,12 @@ public class MainHomeActivity extends AppCompatActivity {
         plusButton.setOnClickListener(v -> openPostAnnouncementDialog());
         chatButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ChatActivity.class)));
         profileButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ProfileActivity.class)));
+
+        // Initialize RecyclerView
+        recyclerViewAnnouncements = findViewById(R.id.recyclerViewAnnouncements);
+        recyclerViewAnnouncements.setLayoutManager(new LinearLayoutManager(this));
+        announcementAdapter = new AnnouncementAdapter(announcementList);
+        recyclerViewAnnouncements.setAdapter(announcementAdapter);
     }
 
     private void openPostAnnouncementDialog() {
@@ -153,7 +166,11 @@ public class MainHomeActivity extends AppCompatActivity {
             return;
         }
 
-        // TODO: Handle the posting logic (e.g., upload data to a database or server)
+        // Create new announcement and add it to the list
+        Announcement announcement = new Announcement(title, carModel, rentingPrice, description, imageUri);
+        announcementList.add(announcement);
+        announcementAdapter.notifyDataSetChanged();
+
         Toast.makeText(this, "Announcement posted", Toast.LENGTH_SHORT).show();
 
         // Dismiss the dialog

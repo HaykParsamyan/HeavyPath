@@ -41,9 +41,6 @@ public class MainHomeActivity extends AppCompatActivity {
     private ImageButton buttonUploadImage;
     private ImageButton buttonCaptureImage;
     private AlertDialog postDialog;
-    private RecyclerView recyclerViewAnnouncements;
-    private AnnouncementAdapter announcementAdapter;
-    private List<Announcement> announcementList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,12 +60,6 @@ public class MainHomeActivity extends AppCompatActivity {
         plusButton.setOnClickListener(v -> openPostAnnouncementDialog());
         chatButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ChatActivity.class)));
         profileButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ProfileActivity.class)));
-
-        // Initialize RecyclerView
-        recyclerViewAnnouncements = findViewById(R.id.recyclerViewAnnouncements);
-        recyclerViewAnnouncements.setLayoutManager(new LinearLayoutManager(this));
-        announcementAdapter = new AnnouncementAdapter(announcementList);
-        recyclerViewAnnouncements.setAdapter(announcementAdapter);
     }
 
     private void openPostAnnouncementDialog() {
@@ -166,11 +157,7 @@ public class MainHomeActivity extends AppCompatActivity {
             return;
         }
 
-        // Create new announcement and add it to the list
-        Announcement announcement = new Announcement(title, carModel, rentingPrice, description, imageUri);
-        announcementList.add(announcement);
-        announcementAdapter.notifyDataSetChanged();
-
+        // Announcement posting logic without AnnouncementAdapter
         Toast.makeText(this, "Announcement posted", Toast.LENGTH_SHORT).show();
 
         // Dismiss the dialog

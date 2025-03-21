@@ -1,11 +1,8 @@
 package com.example.heavypath_project;
 
-import android.Manifest;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -15,16 +12,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainHomeActivity extends AppCompatActivity {
 
@@ -32,8 +24,6 @@ public class MainHomeActivity extends AppCompatActivity {
     private static final int CAPTURE_IMAGE_REQUEST = 2;
     private static final int CAMERA_PERMISSION_CODE = 100;
 
-    private Button settingsButton;
-    private Button buttonAtButton;
     private Button plusButton;
     private Button chatButton;
     private Button profileButton;
@@ -48,18 +38,22 @@ public class MainHomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_home);
 
         // Initialize buttons
-        settingsButton = findViewById(R.id.settings_button);
-        buttonAtButton = findViewById(R.id.button_at);
         plusButton = findViewById(R.id.plus_button);
         chatButton = findViewById(R.id.chat_button);
         profileButton = findViewById(R.id.profile_button);
 
         // Set click listeners
-        settingsButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, SettingsActivity.class)));
-        buttonAtButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ButtonAtActivity.class)));
         plusButton.setOnClickListener(v -> openPostAnnouncementDialog());
-        chatButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ChatActivity.class)));
-        profileButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ProfileActivity.class)));
+        chatButton.setOnClickListener(v -> {
+            // Navigate to ChatActivity
+            Intent intent = new Intent(MainHomeActivity.this, ChatActivity.class);
+            startActivity(intent);
+        });
+        profileButton.setOnClickListener(v -> {
+            // Navigate to ProfileActivity
+            Intent intent = new Intent(MainHomeActivity.this, ProfileActivity.class);
+            startActivity(intent);
+        });
     }
 
     private void openPostAnnouncementDialog() {
@@ -92,37 +86,11 @@ public class MainHomeActivity extends AppCompatActivity {
     }
 
     private void captureImage() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
         } else {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             startActivityForResult(takePictureIntent, CAPTURE_IMAGE_REQUEST);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == CAMERA_PERMISSION_CODE) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                captureImage();
-            } else {
-                Toast.makeText(this, "Camera permission is required to use camera.", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData();
-            buttonUploadImage.setImageURI(imageUri);
-        } else if (requestCode == CAPTURE_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null) {
-            Bundle extras = data.getExtras();
-            Bitmap imageBitmap = (Bitmap) extras.get("data");
-            buttonCaptureImage.setImageBitmap(imageBitmap);
-            // You may want to save the bitmap or get the URI
         }
     }
 
@@ -157,10 +125,9 @@ public class MainHomeActivity extends AppCompatActivity {
             return;
         }
 
-        // Announcement posting logic without AnnouncementAdapter
+        // Announcement logic here
         Toast.makeText(this, "Announcement posted", Toast.LENGTH_SHORT).show();
 
-        // Dismiss the dialog
         if (postDialog != null) {
             postDialog.dismiss();
         }

@@ -102,50 +102,59 @@
         android:id="@+id/editTextDescription"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:hint="Enter description"
+        android:layout_marginBottom="16dp"
         android:background="@color/white"
-        android:textColor="@color/black"
-        android:padding="8dp"
         android:gravity="top"
-        app:layout_constraintTop_toBottomOf="@id/labelDescription"
+        android:hint="Enter description"
+        android:padding="8dp"
+        android:textColor="@color/black"
         app:layout_constraintBottom_toTopOf="@id/buttonPost"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp" />
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/labelDescription"
+        app:layout_constraintVertical_bias="1.0" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintTop_toBottomOf="@id/editTextDescription"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginBottom="16dp">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/editTextDescription">
 
-        <ImageButton
-            android:id="@+id/buttonUploadImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_upload"
-            android:contentDescription="Upload Image" />
-
-        <ImageButton
-            android:id="@+id/buttonCaptureImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_camera"
-            android:contentDescription="Capture Image" />
     </LinearLayout>
 
     <Button
         android:id="@+id/buttonPost"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/black"
         android:text="Post"
         android:textColor="@color/white"
-        android:backgroundTint="@color/black"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageButton
+        android:id="@+id/buttonCaptureImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:contentDescription="Capture Image"
+        android:src="@drawable/ic_camera"
+        app:layout_constraintStart_toEndOf="@+id/buttonUploadImage"
+        tools:layout_editor_absoluteY="456dp" />
+
+    <ImageButton
+        android:id="@+id/buttonUploadImage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="Upload Image"
+        android:src="@drawable/ic_upload"
+        tools:layout_editor_absoluteX="379dp"
+        tools:layout_editor_absoluteY="457dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

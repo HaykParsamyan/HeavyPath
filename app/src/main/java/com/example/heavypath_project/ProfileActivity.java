@@ -4,10 +4,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.provider.MediaStore;
+
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
+import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,6 +32,7 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView languageSettings;
     private TextView securitySettings;
     private TextView aboutCreators;
+    private Button logoutButton;
 
     // Constants for image capture and selection
     private static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -42,6 +46,11 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
+        // Enable the Up ("<") button in the Action Bar
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+
         // Initialize UI components
         profileImage = findViewById(R.id.profile_image);
         usernameTextView = findViewById(R.id.username);
@@ -49,6 +58,7 @@ public class ProfileActivity extends AppCompatActivity {
         languageSettings = findViewById(R.id.language);
         securitySettings = findViewById(R.id.security);
         aboutCreators = findViewById(R.id.about_creators);
+        logoutButton = findViewById(R.id.button_logout);
 
         // Set username from intent extras
         String username = getIntent().getStringExtra("USERNAME");
@@ -62,8 +72,29 @@ public class ProfileActivity extends AppCompatActivity {
         profileImage.setOnClickListener(v -> showImagePickerDialog());
         notificationSettings.setOnClickListener(v -> openNotificationSettings());
         languageSettings.setOnClickListener(v -> openLanguageSettings());
-        securitySettings.setOnClickListener(v -> openSecuritySettings());
+        securitySettings.setOnClickListener(v -> openSettingsActivity());
         aboutCreators.setOnClickListener(v -> openAboutCreators());
+
+        // Log Out functionality
+        logoutButton.setOnClickListener(v -> logout());
+    }
+
+    // Handle Up ("<") button click to navigate back to MainHomeActivity
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            Intent intent = new Intent(ProfileActivity.this, MainHomeActivity.class);
+            startActivity(intent);
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // Open SettingsActivity for security settings
+    private void openSettingsActivity() {
+        Intent intent = new Intent(ProfileActivity.this, SettingsActivity.class);
+        startActivity(intent);
     }
 
     // Show options to choose or capture an image
@@ -77,7 +108,7 @@ public class ProfileActivity extends AppCompatActivity {
             } else if ("Choose from Gallery".equals(options[which])) {
                 choosePhotoFromGallery();
             } else {
-                dialog.dismiss(); // Cancel
+                dialog.dismiss();
             }
         });
         builder.show();
@@ -87,7 +118,6 @@ public class ProfileActivity extends AppCompatActivity {
     private void takePhotoFromCamera() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            // Create file for storing the captured image
             File photoFile = null;
             try {
                 photoFile = createImageFile();
@@ -95,7 +125,6 @@ public class ProfileActivity extends AppCompatActivity {
                 Toast.makeText(this, "Error while creating the image file", Toast.LENGTH_SHORT).show();
                 return;
             }
-            // Launch camera intent
             if (photoFile != null) {
                 Uri photoURI = FileProvider.getUriForFile(this, "com.example.heavypath_project.fileprovider", photoFile);
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
@@ -110,11 +139,7 @@ public class ProfileActivity extends AppCompatActivity {
     private File createImageFile() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                "JPEG_" + timeStamp + "_", // Prefix
-                ".jpg", // Suffix
-                storageDir // Directory
-        );
+        File image = File.createTempFile("JPEG_" + timeStamp + "_", ".jpg", storageDir);
         currentPhotoPath = image.getAbsolutePath();
         return image;
     }
@@ -132,7 +157,6 @@ public class ProfileActivity extends AppCompatActivity {
 
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == REQUEST_IMAGE_CAPTURE) {
-                // Handle captured photo
                 File file = new File(currentPhotoPath);
                 if (file.exists()) {
                     Uri uri = Uri.fromFile(file);
@@ -141,7 +165,6 @@ public class ProfileActivity extends AppCompatActivity {
                     Toast.makeText(this, "Error accessing captured image", Toast.LENGTH_SHORT).show();
                 }
             } else if (requestCode == PICK_IMAGE) {
-                // Handle selected photo from gallery
                 if (data != null && data.getData() != null) {
                     Uri selectedImage = data.getData();
                     profileImage.setImageURI(selectedImage);
@@ -154,22 +177,23 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
-    // Open notification settings (placeholder)
+    // Log Out functionality
+    private void logout() {
+        Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+
+    // Placeholder methods for other settings
     private void openNotificationSettings() {
         Toast.makeText(this, "Notification settings clicked", Toast.LENGTH_SHORT).show();
     }
 
-    // Open language settings (placeholder)
     private void openLanguageSettings() {
         Toast.makeText(this, "Language settings clicked", Toast.LENGTH_SHORT).show();
     }
 
-    // Open security settings (placeholder)
-    private void openSecuritySettings() {
-        Toast.makeText(this, "Security settings clicked", Toast.LENGTH_SHORT).show();
-    }
-
-    // Open about creators (placeholder)
     private void openAboutCreators() {
         Toast.makeText(this, "About creators clicked", Toast.LENGTH_SHORT).show();
     }

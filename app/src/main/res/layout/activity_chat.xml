@@ -35,10 +35,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="Type a message"
-            android:background="@color/white"
+            android:background="@color/yellow"
             android:textColor="@color/black"
             android:padding="8dp"
-            android:textColorHint="@color/gray" />   <!-- Corrected attribute -->
+            android:textColorHint="@color/black" />   <!-- Corrected attribute -->
 
         <ImageButton
             android:id="@+id/buttonSend"

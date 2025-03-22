@@ -2,13 +2,20 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/yellow">
 
-    <!-- Settings Content -->
+    <!-- Change Password Option -->
     <TextView
-        android:id="@+id/settings_text"
-        android:layout_width="wrap_content"
+        android:id="@+id/change_password_option"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="This is the Settings Page"
-        android:textSize="18sp" />
+        android:padding="16dp"
+        android:background="@drawable/rounded_background"
+        android:text="Change Password"
+        android:textSize="18sp"
+        android:textColor="@color/black"
+        android:gravity="center_vertical"
+        android:layout_marginTop="16dp" />*
+
 </RelativeLayout>

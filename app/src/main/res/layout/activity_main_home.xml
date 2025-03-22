@@ -28,29 +28,34 @@
         android:layout_marginBottom="100dp"
         android:layout_marginTop="16dp" />
 
-    <!-- Plus Button -->
-    <Button
-        android:id="@+id/plus_button"
+    <!-- Centered Buttons -->
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/rounded_button_white"
-        android:text="Post Announcement"
-        android:textColor="@color/black"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginStart="16dp" />
+        android:layout_centerHorizontal="true"
+        android:orientation="horizontal"
+        android:layout_marginBottom="16dp">
 
-    <!-- Chat Button -->
-    <Button
-        android:id="@+id/chat_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@drawable/rounded_button_white"
-        android:text="Chat"
-        android:textColor="@color/black"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="16dp"
-        android:layout_toEndOf="@id/plus_button" />
+        <!-- Post Button -->
+        <Button
+            android:id="@+id/plus_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button_white"
+            android:text="Post"
+            android:textColor="@color/black"
+            android:layout_marginEnd="16dp" />
+
+        <!-- Chat Button -->
+        <Button
+            android:id="@+id/chat_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/rounded_button_white"
+            android:text="Chat"
+            android:textColor="@color/black"
+            android:layout_marginStart="16dp" />
+    </LinearLayout>
 
 </RelativeLayout>

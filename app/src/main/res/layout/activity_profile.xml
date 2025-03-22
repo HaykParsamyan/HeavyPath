@@ -10,14 +10,14 @@
     <!-- Profile Image -->
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_image"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_margin="16dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="40dp"
         android:src="@drawable/ic_profile_placeholder"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="40dp"
-        app:civ_border_width="2dp"
-        app:civ_border_color="@color/black" />
+        app:civ_border_width="3dp"
+        app:civ_border_color="@color/black"
+        android:contentDescription="Profile Image" />
 
     <!-- Username -->
     <TextView
@@ -25,7 +25,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Username"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:textColor="@color/black"
         android:layout_below="@id/profile_image"
         android:layout_centerHorizontal="true"
@@ -33,59 +33,82 @@
 
     <!-- Menu Options -->
     <LinearLayout
+        android:id="@+id/menu_options"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/username"
         android:layout_marginTop="32dp"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
         <!-- Notification Settings -->
         <TextView
             android:id="@+id/notification_settings"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@drawable/rounded_background"
             android:text="Notification Settings"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:textColor="@color/black"
-            android:padding="8dp"
-            android:background="@color/yellow"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical" />
 
         <!-- Language -->
         <TextView
             android:id="@+id/language"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@drawable/rounded_background"
             android:text="Language"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:textColor="@color/black"
-            android:padding="8dp"
-            android:background="@color/yellow"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical" />
 
         <!-- Security -->
         <TextView
             android:id="@+id/security"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@drawable/rounded_background"
             android:text="Security"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:textColor="@color/black"
-            android:padding="8dp"
-            android:background="@color/yellow"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical" />
 
         <!-- About Creators -->
         <TextView
             android:id="@+id/about_creators"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:background="@drawable/rounded_background"
             android:text="About Creators"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:textColor="@color/black"
-            android:padding="8dp"
-            android:background="@color/yellow"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical" />
+
     </LinearLayout>
+
+    <!-- Logout Button -->
+    <Button
+        android:id="@+id/button_logout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/menu_options"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/rounded_background"
+        android:padding="16dp"
+        android:text="Log Out"
+        android:textSize="18sp"
+        android:textColor="@color/black" />
 </RelativeLayout>

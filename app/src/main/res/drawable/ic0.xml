@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+
+    <!-- Tractor Body (Rectangle) -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M8,20 L32,20 L32,30 L8,30 Z" />
+
+    <!-- Tractor Cabin (Triangle) -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M8,20 L8,10 L20,20 Z" />
+
+    <!-- Left Wheel (Circle) - center 14,30 with radius 4 -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M14,30 m -4,0 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0" />
+
+    <!-- Right Wheel (Circle) - center 28,30 with radius 4 -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M28,30 m -4,0 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0" />
+
+</vector>

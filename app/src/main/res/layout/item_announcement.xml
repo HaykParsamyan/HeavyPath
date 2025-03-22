@@ -1,35 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="8dp">
+    android:padding="16dp">
 
     <ImageView
-        android:id="@+id/imageViewAnnouncement"
+        android:id="@+id/announcement_image"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        android:layout_marginBottom="8dp" />
 
     <TextView
-        android:id="@+id/textViewTitle"
+        android:id="@+id/announcement_title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="Title"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:textSize="18sp" />
+        android:layout_marginBottom="4dp" />
 
     <TextView
-        android:id="@+id/textViewCarModel"
+        android:id="@+id/announcement_car_model"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Car Model"
+        android:textSize="16sp"
+        android:layout_marginBottom="4dp" />
 
     <TextView
-        android:id="@+id/textViewRentingPrice"
+        android:id="@+id/announcement_renting_price"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Rent Price"
+        android:textSize="16sp"
+        android:layout_marginBottom="4dp" />
 
     <TextView
-        android:id="@+id/textViewDescription"
+        android:id="@+id/announcement_description"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Description"
+        android:textSize="14sp" />
 </LinearLayout>

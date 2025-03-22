@@ -1,5 +1,6 @@
 package com.example.heavypath_project;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -17,6 +18,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainHomeActivity extends AppCompatActivity {
 
@@ -32,6 +38,10 @@ public class MainHomeActivity extends AppCompatActivity {
     private ImageButton buttonCaptureImage;
     private AlertDialog postDialog;
 
+    private RecyclerView recyclerView;
+    private AnnouncementAdapter adapter;
+    private List<Announcement> announcementList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +51,13 @@ public class MainHomeActivity extends AppCompatActivity {
         plusButton = findViewById(R.id.plus_button);
         chatButton = findViewById(R.id.chat_button);
         profileButton = findViewById(R.id.profile_button);
+
+        // Initialize RecyclerView
+        recyclerView = findViewById(R.id.recyclerViewAnnouncements);
+        announcementList = new ArrayList<>();
+        adapter = new AnnouncementAdapter(this, announcementList);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Set click listeners
         plusButton.setOnClickListener(v -> openPostAnnouncementDialog());
@@ -86,8 +103,8 @@ public class MainHomeActivity extends AppCompatActivity {
     }
 
     private void captureImage() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
         } else {
             Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
             startActivityForResult(takePictureIntent, CAPTURE_IMAGE_REQUEST);
@@ -125,11 +142,28 @@ public class MainHomeActivity extends AppCompatActivity {
             return;
         }
 
-        // Announcement logic here
+        // Add new announcement
+        Announcement announcement = new Announcement(imageUri, title, carModel, rentingPrice, description);
+        announcementList.add(announcement);
+        adapter.notifyDataSetChanged();
+
         Toast.makeText(this, "Announcement posted", Toast.LENGTH_SHORT).show();
 
         if (postDialog != null) {
             postDialog.dismiss();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == RESULT_OK) {
+            if (requestCode == PICK_IMAGE_REQUEST && data != null && data.getData() != null) {
+                imageUri = data.getData();
+            } else if (requestCode == CAPTURE_IMAGE_REQUEST && data != null && data.getExtras() != null) {
+                imageUri = data.getData();
+            }
         }
     }
 }

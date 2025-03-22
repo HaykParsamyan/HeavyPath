@@ -10,6 +10,7 @@
     android:background="@color/yellow"
     tools:context=".MainHomeActivity">
 
+    <!-- Title Label -->
     <TextView
         android:id="@+id/labelTitle"
         android:layout_width="0dp"
@@ -22,12 +23,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="8dp" />
 
+    <!-- Title Input -->
     <EditText
         android:id="@+id/editTextTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Enter title"
-        android:background="@color/yellow"
+        android:background="@android:color/white"
         android:textColor="@color/black"
         android:padding="8dp"
         app:layout_constraintTop_toBottomOf="@id/labelTitle"
@@ -35,6 +37,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="16dp" />
 
+    <!-- Car Model Label -->
     <TextView
         android:id="@+id/labelCarModel"
         android:layout_width="0dp"
@@ -47,12 +50,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="8dp" />
 
+    <!-- Car Model Input -->
     <EditText
         android:id="@+id/editTextCarModel"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Enter car model"
-        android:background="@color/white"
+        android:background="@android:color/white"
         android:textColor="@color/black"
         android:padding="8dp"
         app:layout_constraintTop_toBottomOf="@id/labelCarModel"
@@ -60,6 +64,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="16dp" />
 
+    <!-- Renting Price Label -->
     <TextView
         android:id="@+id/labelRentingPrice"
         android:layout_width="0dp"
@@ -72,12 +77,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="8dp" />
 
+    <!-- Renting Price Input -->
     <EditText
         android:id="@+id/editTextRentingPrice"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Enter renting price per hour"
-        android:background="@color/yellow"
+        android:background="@android:color/white"
         android:textColor="@color/black"
         android:padding="8dp"
         android:inputType="numberDecimal"
@@ -86,6 +92,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="16dp" />
 
+    <!-- Description Label -->
     <TextView
         android:id="@+id/labelDescription"
         android:layout_width="0dp"
@@ -98,63 +105,72 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginBottom="8dp" />
 
+    <!-- Description Input -->
     <EditText
         android:id="@+id/editTextDescription"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginBottom="16dp"
-        android:background="@color/yellow"
-        android:gravity="top"
+        android:layout_height="wrap_content"
         android:hint="Enter description"
+        android:gravity="top"
+        android:background="@android:color/white"
         android:padding="8dp"
         android:textColor="@color/black"
-        app:layout_constraintBottom_toTopOf="@id/buttonPost"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/labelDescription"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="16dp" />
 
+    <!-- Image Buttons -->
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/editTextDescription">
 
+        <ImageButton
+            android:id="@+id/buttonCaptureImage"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Capture Image"
+            android:src="@drawable/ic_camera" />
+
+        <ImageButton
+            android:id="@+id/buttonUploadImage"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="Upload Image"
+            android:src="@drawable/ic_upload" />
     </LinearLayout>
 
+    <!-- Post Button -->
     <Button
         android:id="@+id/buttonPost"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/black"
-        android:text="Post"
+        android:text="Post Announcement"
         android:textColor="@color/yellow"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:padding="12dp"
+        app:layout_constraintTop_toBottomOf="@id/buttonUploadImage"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent" />
 
-    <ImageButton
-        android:id="@+id/buttonCaptureImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
-        android:contentDescription="Capture Image"
-        android:src="@drawable/ic_camera"
-        app:layout_constraintStart_toEndOf="@+id/buttonUploadImage"
-        tools:layout_editor_absoluteY="456dp" />
-
-    <ImageButton
-        android:id="@+id/buttonUploadImage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="Upload Image"
-        android:src="@drawable/ic_upload"
-        tools:layout_editor_absoluteX="379dp"
-        tools:layout_editor_absoluteY="457dp" />
+    <ImageView
+        android:id="@+id/image_preview"
+        android:layout_width="281dp"
+        android:layout_height="97dp"
+        android:layout_marginTop="76dp"
+        android:background="@android:color/darker_gray"
+        android:scaleType="centerCrop"
+        app:layout_constraintTop_toBottomOf="@+id/editTextDescription"
+        tools:layout_editor_absoluteX="49dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,26 +5,56 @@
     android:fillViewport="true"
     android:background="@color/yellow">
 
-    <LinearLayout
-        android:orientation="vertical"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:gravity="center_horizontal">
+        android:padding="16dp">
 
         <!-- App Title -->
         <TextView
             android:id="@+id/appTitleTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:gravity="center"
+            android:layout_centerHorizontal="true"
             android:text="Heavy Machinery Rental"
             android:textColor="@color/black"
             android:textSize="26sp"
             android:textStyle="bold"
             android:layout_marginBottom="32dp" />
 
+        <!-- Launcher Icon -->
+
         <!-- Email Input Field -->
+
+        <ImageView
+            android:id="@+id/ic_launcher_foreground"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="700dp"
+            android:layout_marginEnd="54dp"
+            android:contentDescription="App Launcher Icon"
+            android:src="@drawable/ic_launcher_foreground" />
+
+        <ImageView
+            android:id="@+id/ic_tanker"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:layout_marginTop="500dp"
+            android:contentDescription="App Launcher Icon"
+            android:src="@drawable/ic_tanker" />
+
+        <ImageView
+            android:id="@+id/ic_bulldozer"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="355dp"
+            android:layout_marginEnd="146dp"
+            android:contentDescription="App Launcher Icon"
+            android:src="@drawable/ic_bulldozer" />
+
+
         <EditText
             android:id="@+id/email"
             android:layout_width="match_parent"
@@ -34,7 +64,8 @@
             android:padding="12dp"
             android:background="@drawable/edit_text_background"
             android:textColor="@color/black"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginTop="16dp"
+            android:layout_below="@+id/appTitleTextView" />
 
         <!-- Password Input Field -->
         <EditText
@@ -46,7 +77,8 @@
             android:padding="12dp"
             android:background="@drawable/edit_text_background"
             android:textColor="@color/black"
-            android:layout_marginBottom="24dp" />
+            android:layout_marginTop="16dp"
+            android:layout_below="@+id/email" />
 
         <!-- Login Button -->
         <Button
@@ -57,7 +89,8 @@
             android:backgroundTint="@color/black"
             android:textColor="@color/white"
             android:padding="16dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginTop="24dp"
+            android:layout_below="@+id/password"
             android:fontFamily="sans-serif-medium" />
 
         <!-- Register Button -->
@@ -69,9 +102,11 @@
             android:backgroundTint="@color/black"
             android:textColor="@color/white"
             android:padding="16dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginTop="12dp"
+            android:layout_below="@+id/login_button"
             android:fontFamily="sans-serif-medium" />
 
+        <!-- Forgot Password -->
         <TextView
             android:id="@+id/forgot_password"
             android:layout_width="wrap_content"
@@ -82,9 +117,10 @@
             android:textStyle="bold"
             android:gravity="center"
             android:layout_marginTop="8dp"
-            android:layout_gravity="center_horizontal"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/register_button"
             android:clickable="true"
             android:focusable="true" />
 
-    </LinearLayout>
+    </RelativeLayout>
 </ScrollView>

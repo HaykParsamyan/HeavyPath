@@ -7,17 +7,25 @@
     android:background="@color/yellow"
     tools:context=".ProfileActivity">
 
-    <!-- Profile Image -->
-    <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/profile_image"
-        android:layout_width="120dp"
-        android:layout_height="120dp"
+    <!-- Black Photo Frame -->
+    <FrameLayout
+        android:id="@+id/photo_frame"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
         android:layout_marginTop="40dp"
-        android:src="@drawable/ic_profile_placeholder"
         android:layout_centerHorizontal="true"
-        app:civ_border_width="3dp"
-        app:civ_border_color="@color/black"
-        android:contentDescription="Profile Image" />
+        android:background="@drawable/black_photo_frame_background">
+
+        <!-- Profile Image -->
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/profile_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_profile_placeholder"
+            app:civ_border_width="3dp"
+            app:civ_border_color="@color/white"
+            android:contentDescription="Profile Image" />
+    </FrameLayout>
 
     <!-- Username -->
     <TextView
@@ -27,7 +35,7 @@
         android:text="Username"
         android:textSize="20sp"
         android:textColor="@color/black"
-        android:layout_below="@id/profile_image"
+        android:layout_below="@id/photo_frame"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="16dp" />
 

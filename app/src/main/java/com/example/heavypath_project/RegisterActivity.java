@@ -2,21 +2,20 @@ package com.example.heavypath_project;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -84,11 +83,12 @@ public class RegisterActivity extends AppCompatActivity {
                 Log.d(TAG, "User created successfully");
                 FirebaseUser firebaseUser = mAuth.getCurrentUser();
                 if (firebaseUser != null) {
+                    String userId = firebaseUser.getUid();
                     sendEmailVerification(firebaseUser); // Send email verification
-                    saveUserToFirestore(username, email);
+                    saveUserToFirestore(userId, username, email, hashPassword(password));
                 }
             } else {
-                Log.d(TAG, "Registration failed: " + task.getException().getMessage());
+                Log.e(TAG, "Registration failed: " + task.getException().getMessage());
                 Toast.makeText(this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -105,17 +105,44 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
-    private void saveUserToFirestore(String username, String email) {
+    private void saveUserToFirestore(String userId, String username, String email, String hashedPassword) {
+        // Create user details map
         Map<String, Object> user = new HashMap<>();
+        user.put("userId", userId); // Store UID
         user.put("username", username);
         user.put("email", email);
+        user.put("password", hashedPassword); // Store hashed password
 
-        db.collection("users").document(email).set(user).addOnCompleteListener(task -> {
+        db.collection("users").document(userId).set(user).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Toast.makeText(this, "User registered successfully! Please verify your email.", Toast.LENGTH_SHORT).show();
+                fetchUsername(userId); // Fetch the username after saving
             } else {
                 Log.e(TAG, "Error saving user data: " + task.getException().getMessage());
                 Toast.makeText(this, "Error saving user data: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private String hashPassword(String password) {
+        // Hash the password (example using Base64; replace with a secure hash algorithm like BCrypt in production)
+        return Base64.encodeToString(password.getBytes(StandardCharsets.UTF_8), Base64.DEFAULT).trim();
+    }
+
+    private void fetchUsername(String userId) {
+        db.collection("users").document(userId).get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document.exists()) {
+                    String username = document.getString("username");
+                    Toast.makeText(this, "Welcome, " + (username != null ? username : "User") + "!", Toast.LENGTH_SHORT).show();
+                } else {
+                    Log.e(TAG, "User document does not exist");
+                    Toast.makeText(this, "Failed to retrieve username.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Log.e(TAG, "Error fetching username: " + task.getException().getMessage());
+                Toast.makeText(this, "Error fetching username: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

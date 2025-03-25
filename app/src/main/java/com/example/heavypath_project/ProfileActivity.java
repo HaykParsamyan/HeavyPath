@@ -14,8 +14,14 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +39,10 @@ public class ProfileActivity extends AppCompatActivity {
     private TextView securitySettings;
     private TextView aboutCreators;
     private Button logoutButton;
+
+    // Firebase components
+    private FirebaseAuth mAuth;
+    private FirebaseFirestore db;
 
     // Constants for image capture and selection
     private static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -60,13 +70,12 @@ public class ProfileActivity extends AppCompatActivity {
         aboutCreators = findViewById(R.id.about_creators);
         logoutButton = findViewById(R.id.button_logout);
 
-        // Set username from intent extras
-        String username = getIntent().getStringExtra("USERNAME");
-        if (username != null) {
-            usernameTextView.setText(username);
-        } else {
-            usernameTextView.setText("Guest"); // Fallback if username is null
-        }
+        // Initialize Firebase Auth and Firestore
+        mAuth = FirebaseAuth.getInstance();
+        db = FirebaseFirestore.getInstance();
+
+        // Fetch username from Firestore
+        fetchUsername();
 
         // Set click listeners for UI components
         profileImage.setOnClickListener(v -> showImagePickerDialog());
@@ -77,6 +86,33 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Log Out functionality
         logoutButton.setOnClickListener(v -> logout());
+    }
+
+    private void fetchUsername() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+
+            db.collection("users").document(userId)
+                    .get()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                String username = document.getString("username");
+                                usernameTextView.setText(username != null ? username : "Guest");
+                            } else {
+                                usernameTextView.setText("Guest");
+                                Toast.makeText(this, "User data not found", Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            usernameTextView.setText("Guest");
+                            Toast.makeText(this, "Failed to fetch user data", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        } else {
+            usernameTextView.setText("Guest");
+        }
     }
 
     // Handle Up ("<") button click to navigate back to MainHomeActivity

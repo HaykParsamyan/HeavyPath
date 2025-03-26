@@ -1,23 +1,31 @@
 package com.example.heavypath_project;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
-
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
+
     private Context context;
     private List<User> userList;
+    private OnItemClickListener listener; // Click listener for usernames
+
+    public interface OnItemClickListener {
+        void onItemClick(User user); // Callback for when a username is clicked
+    }
 
     public UserAdapter(Context context, List<User> userList) {
         this.context = context;
         this.userList = userList;
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 
     @NonNull
@@ -32,6 +40,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         User user = userList.get(position);
         holder.usernameTextView.setText(user.getUsername());
         holder.emailTextView.setText(user.getEmail());
+
+        // Set a click listener for the item
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(user); // Notify the listener when a username is clicked
+            }
+        });
     }
 
     @Override

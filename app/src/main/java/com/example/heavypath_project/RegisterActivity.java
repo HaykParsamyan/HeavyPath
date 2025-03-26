@@ -4,15 +4,18 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.widget.Toast;
+
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.nio.charset.StandardCharsets;
@@ -24,6 +27,7 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
 
     private EditText usernameEditText, emailEditText, passwordEditText, confirmPasswordEditText;
+    private TextView usernameErrorTextView; // TextView to display the error
     private Button registerButton;
 
     private FirebaseAuth mAuth;
@@ -36,6 +40,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Initialize UI components
         usernameEditText = findViewById(R.id.username);
+        usernameErrorTextView = findViewById(R.id.username_error); // TextView for inline error
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
         confirmPasswordEditText = findViewById(R.id.confirm_password);
@@ -73,11 +78,40 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
         if (!password.equals(confirmPassword)) {
-            Toast.makeText(this, "Passwords do not match", Toast.LENGTH_SHORT).show();
+            usernameErrorTextView.setVisibility(View.GONE);
+            passwordEditText.setError("Passwords do not match");
             return;
         }
 
-        // Create user in Firebase Authentication
+        // Check if username is unique
+        checkUsernameUniqueness(username, email, password);
+    }
+
+    private void checkUsernameUniqueness(String username, String email, String password) {
+        db.collection("users")
+                .whereEqualTo("username", username)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (!querySnapshot.isEmpty()) {
+                            // Username already exists
+                            usernameErrorTextView.setText("Username is already taken. Please choose another one.");
+                            usernameErrorTextView.setVisibility(View.VISIBLE);
+                        } else {
+                            // Username is unique
+                            usernameErrorTextView.setVisibility(View.GONE); // Hide error if username is valid
+                            createFirebaseUser(email, password, username);
+                        }
+                    } else {
+                        Log.e(TAG, "Error checking username uniqueness: " + task.getException().getMessage());
+                        usernameErrorTextView.setText("Error checking username. Please try again.");
+                        usernameErrorTextView.setVisibility(View.VISIBLE);
+                    }
+                });
+    }
+
+    private void createFirebaseUser(String email, String password, String username) {
         mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Log.d(TAG, "User created successfully");
@@ -89,7 +123,8 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             } else {
                 Log.e(TAG, "Registration failed: " + task.getException().getMessage());
-                Toast.makeText(this, "Registration failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                usernameErrorTextView.setText("Registration failed: " + task.getException().getMessage());
+                usernameErrorTextView.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -97,10 +132,12 @@ public class RegisterActivity extends AppCompatActivity {
     private void sendEmailVerification(FirebaseUser firebaseUser) {
         firebaseUser.sendEmailVerification().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                usernameErrorTextView.setVisibility(View.GONE);
                 Toast.makeText(this, "Verification email sent to " + firebaseUser.getEmail(), Toast.LENGTH_LONG).show();
             } else {
                 Log.e(TAG, "Error sending email verification: " + task.getException().getMessage());
-                Toast.makeText(this, "Failed to send verification email.", Toast.LENGTH_SHORT).show();
+                usernameErrorTextView.setText("Failed to send verification email.");
+                usernameErrorTextView.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -115,11 +152,12 @@ public class RegisterActivity extends AppCompatActivity {
 
         db.collection("users").document(userId).set(user).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                usernameErrorTextView.setVisibility(View.GONE);
                 Toast.makeText(this, "User registered successfully! Please verify your email.", Toast.LENGTH_SHORT).show();
-                fetchUsername(userId); // Fetch the username after saving
             } else {
                 Log.e(TAG, "Error saving user data: " + task.getException().getMessage());
-                Toast.makeText(this, "Error saving user data: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                usernameErrorTextView.setText("Error saving user data: " + task.getException().getMessage());
+                usernameErrorTextView.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -127,23 +165,5 @@ public class RegisterActivity extends AppCompatActivity {
     private String hashPassword(String password) {
         // Hash the password (example using Base64; replace with a secure hash algorithm like BCrypt in production)
         return Base64.encodeToString(password.getBytes(StandardCharsets.UTF_8), Base64.DEFAULT).trim();
-    }
-
-    private void fetchUsername(String userId) {
-        db.collection("users").document(userId).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document.exists()) {
-                    String username = document.getString("username");
-                    Toast.makeText(this, "Welcome, " + (username != null ? username : "User") + "!", Toast.LENGTH_SHORT).show();
-                } else {
-                    Log.e(TAG, "User document does not exist");
-                    Toast.makeText(this, "Failed to retrieve username.", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Log.e(TAG, "Error fetching username: " + task.getException().getMessage());
-                Toast.makeText(this, "Error fetching username: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 }

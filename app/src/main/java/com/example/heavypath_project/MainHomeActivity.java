@@ -6,20 +6,30 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.provider.MediaStore;
+import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ImageButton;
+import android.widget.SearchView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,18 +44,22 @@ public class MainHomeActivity extends AppCompatActivity {
     private Button chatButton;
     private Button profileButton;
     private Uri imageUri;
-    private ImageButton buttonUploadImage;
-    private ImageButton buttonCaptureImage;
     private AlertDialog postDialog;
 
     private RecyclerView recyclerView;
     private AnnouncementAdapter adapter;
     private List<Announcement> announcementList;
+    private List<User> userList; // For search results
+
+    private FirebaseFirestore db;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_home);
+
+        // Initialize Firebase
+        db = FirebaseFirestore.getInstance();
 
         // Initialize buttons
         plusButton = findViewById(R.id.plus_button);
@@ -55,22 +69,92 @@ public class MainHomeActivity extends AppCompatActivity {
         // Initialize RecyclerView
         recyclerView = findViewById(R.id.recyclerViewAnnouncements);
         announcementList = new ArrayList<>();
-        adapter = new AnnouncementAdapter(this, announcementList);
+        userList = new ArrayList<>();
+        adapter = new AnnouncementAdapter(this, announcementList); // Default adapter for announcements
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        // Set click listeners
+        // Set button click listeners
         plusButton.setOnClickListener(v -> openPostAnnouncementDialog());
-        chatButton.setOnClickListener(v -> {
-            // Navigate to ChatActivity
-            Intent intent = new Intent(MainHomeActivity.this, ChatActivity.class);
-            startActivity(intent);
-        });
-        profileButton.setOnClickListener(v -> {
-            // Navigate to ProfileActivity
-            Intent intent = new Intent(MainHomeActivity.this, ProfileActivity.class);
-            startActivity(intent);
-        });
+        chatButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ChatActivity.class)));
+        profileButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ProfileActivity.class)));
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the search_menu from res/menu
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.search_menu, menu); // Use the menu located in res/menu
+
+        // Find the search item and configure the SearchView
+        MenuItem searchItem = menu.findItem(R.id.action_search); // Ensure the ID matches your XML
+        if (searchItem != null) {
+            SearchView searchView = (SearchView) searchItem.getActionView();
+            if (searchView != null) { // Prevent NullPointerException
+                searchView.setQueryHint("Search by username"); // Display hint in the search bar
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String query) {
+                        if (!TextUtils.isEmpty(query)) {
+                            searchUsersByUsername(query); // Perform Firestore query
+                        }
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String newText) {
+                        if (TextUtils.isEmpty(newText)) {
+                            userList.clear(); // Clear search results
+                            restoreAnnouncements(); // Restore announcements
+                        }
+                        return true;
+                    }
+                });
+            } else {
+                Toast.makeText(this, "Error initializing SearchView", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(this, "Search menu item not found!", Toast.LENGTH_SHORT).show();
+        }
+
+        return true;
+    }
+
+
+    private void searchUsersByUsername(String username) {
+        db.collection("users")
+                .whereEqualTo("username", username) // Query Firestore by username
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        QuerySnapshot querySnapshot = task.getResult();
+                        if (!querySnapshot.isEmpty()) {
+                            userList.clear(); // Clear previous search results
+                            for (DocumentSnapshot document : querySnapshot.getDocuments()) {
+                                User user = document.toObject(User.class);
+                                userList.add(user); // Add users to the list
+                            }
+                            updateRecyclerViewWithUsers(); // Update RecyclerView
+                        } else {
+                            Toast.makeText(this, "No users found with username: " + username, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "Error searching users: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    private void updateRecyclerViewWithUsers() {
+        // Replace announcement RecyclerView with search results
+        UserAdapter userAdapter = new UserAdapter(this, userList); // Adapter for user results
+        recyclerView.setAdapter(userAdapter);
+        userAdapter.notifyDataSetChanged();
+    }
+
+    private void restoreAnnouncements() {
+        adapter = new AnnouncementAdapter(this, announcementList); // Default adapter for announcements
+        recyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
     }
 
     private void openPostAnnouncementDialog() {
@@ -83,8 +167,8 @@ public class MainHomeActivity extends AppCompatActivity {
         final EditText editTextCarModel = dialogView.findViewById(R.id.editTextCarModel);
         final EditText editTextRentingPrice = dialogView.findViewById(R.id.editTextRentingPrice);
         final EditText editTextDescription = dialogView.findViewById(R.id.editTextDescription);
-        buttonUploadImage = dialogView.findViewById(R.id.buttonUploadImage);
-        buttonCaptureImage = dialogView.findViewById(R.id.buttonCaptureImage);
+        ImageButton buttonUploadImage = dialogView.findViewById(R.id.buttonUploadImage);
+        ImageButton buttonCaptureImage = dialogView.findViewById(R.id.buttonCaptureImage);
         Button buttonPost = dialogView.findViewById(R.id.buttonPost);
 
         buttonUploadImage.setOnClickListener(v -> openFileChooser());
@@ -142,7 +226,6 @@ public class MainHomeActivity extends AppCompatActivity {
             return;
         }
 
-        // Add new announcement
         Announcement announcement = new Announcement(imageUri, title, carModel, rentingPrice, description);
         announcementList.add(announcement);
         adapter.notifyDataSetChanged();

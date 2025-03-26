@@ -19,6 +19,14 @@
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp" />
 
+    <SearchView
+        android:id="@+id/search_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:queryHint="Search username"
+        android:iconifiedByDefault="false" />
+
     <!-- Announcements RecyclerView -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewAnnouncements"

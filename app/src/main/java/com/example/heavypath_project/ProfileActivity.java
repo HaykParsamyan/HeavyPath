@@ -4,22 +4,23 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.provider.MediaStore;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
+import com.google.firebase.auth.FirebaseUser;
+
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.DocumentSnapshot;
 
@@ -34,7 +35,7 @@ public class ProfileActivity extends AppCompatActivity {
     // UI components
     private ImageView profileImage;
     private TextView usernameTextView;
-    private TextView notificationSettings;
+    private TextView myPosts; // Changed from notificationSettings to myPosts
     private TextView languageSettings;
     private TextView securitySettings;
     private TextView aboutCreators;
@@ -64,7 +65,7 @@ public class ProfileActivity extends AppCompatActivity {
         // Initialize UI components
         profileImage = findViewById(R.id.profile_image);
         usernameTextView = findViewById(R.id.username);
-        notificationSettings = findViewById(R.id.notification_settings);
+        myPosts = findViewById(R.id.my_posts); // Updated TextView ID
         languageSettings = findViewById(R.id.language);
         securitySettings = findViewById(R.id.security);
         aboutCreators = findViewById(R.id.about_creators);
@@ -79,7 +80,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // Set click listeners for UI components
         profileImage.setOnClickListener(v -> showImagePickerDialog());
-        notificationSettings.setOnClickListener(v -> openNotificationSettings());
+        myPosts.setOnClickListener(v -> openMyPostsActivity()); // Updated to open MyPostsActivity
         languageSettings.setOnClickListener(v -> openLanguageSettings());
         securitySettings.setOnClickListener(v -> openSettingsActivity());
         aboutCreators.setOnClickListener(v -> openAboutCreators());
@@ -130,6 +131,12 @@ public class ProfileActivity extends AppCompatActivity {
     // Open SettingsActivity for security settings
     private void openSettingsActivity() {
         Intent intent = new Intent(ProfileActivity.this, SettingsActivity.class);
+        startActivity(intent);
+    }
+
+    // Open MyPostsActivity for user's posts
+    private void openMyPostsActivity() {
+        Intent intent = new Intent(ProfileActivity.this, MyPostsActivity.class);
         startActivity(intent);
     }
 
@@ -222,10 +229,6 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     // Placeholder methods for other settings
-    private void openNotificationSettings() {
-        Toast.makeText(this, "Notification settings clicked", Toast.LENGTH_SHORT).show();
-    }
-
     private void openLanguageSettings() {
         Toast.makeText(this, "Language settings clicked", Toast.LENGTH_SHORT).show();
     }

@@ -38,6 +38,10 @@
             android:name=".PostAnnouncementActivity"
             android:exported="true" />
 
+        <activity
+            android:name=".MyPostsActivity"
+            android:exported="true" />
+
         <!-- SettingsActivity -->
         <activity
             android:name=".SettingsActivity"

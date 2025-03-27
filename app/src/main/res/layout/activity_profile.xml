@@ -52,16 +52,14 @@
 
         <!-- Notification Settings -->
         <TextView
-            android:id="@+id/notification_settings"
-            android:layout_width="match_parent"
+            android:id="@+id/my_posts"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:background="@drawable/rounded_background"
-            android:text="Notification Settings"
-            android:textSize="20sp"
-            android:textColor="@color/black"
-            android:layout_marginTop="8dp"
-            android:gravity="center_vertical" />
+            android:text="My Posts"
+            android:textSize="18sp"
+            android:layout_marginTop="16dp"
+            android:padding="8dp"
+            android:layout_gravity="center_horizontal" />
 
         <!-- Language -->
         <TextView

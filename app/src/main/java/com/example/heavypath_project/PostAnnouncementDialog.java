@@ -18,6 +18,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -41,6 +43,7 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
 
     private FirebaseFirestore db;
     private FirebaseStorage storage;
+    private FirebaseAuth auth;
 
     @NonNull
     @Override
@@ -51,9 +54,10 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
 
         builder.setView(view);
 
-        // Initialize Firebase Firestore and Storage
+        // Initialize Firebase Firestore, Storage, and Authentication
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
+        auth = FirebaseAuth.getInstance();
 
         // Initialize UI components
         imagePreview = view.findViewById(R.id.image_preview);
@@ -125,16 +129,26 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
     }
 
     private void saveAnnouncementToFirestore(String title, String carModel, String rentingPrice, String description, String imageUrl) {
-        // Prepare announcement data
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(getActivity(), "User not logged in.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String email = currentUser.getEmail(); // Get user's email
+
         Map<String, Object> announcement = new HashMap<>();
         announcement.put("title", title);
         announcement.put("carModel", carModel);
         announcement.put("rentingPrice", rentingPrice);
         announcement.put("description", description);
         announcement.put("imageUrl", imageUrl);
+        announcement.put("email", email); // Add user's email
 
-        // Save data to Firestore under "announement" collection
-        db.collection("announement").add(announcement)
+        // Save data to Firestore in the 'announcement/Photos' document
+        db.collection("announcement")
+                .document("Photos")
+                .set(announcement)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(getActivity(), "Announcement posted successfully!", Toast.LENGTH_SHORT).show();
@@ -153,7 +167,6 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
             if (requestCode == REQUEST_IMAGE_CAPTURE && data != null && data.getExtras() != null) {
                 Bitmap photo = (Bitmap) data.getExtras().get("data");
                 imagePreview.setImageBitmap(photo);
-                // Note: For captured images, you need to save the Bitmap to a file to get its URI
             } else if (requestCode == PICK_IMAGE && data != null && data.getData() != null) {
                 selectedImageUri = data.getData();
                 try {

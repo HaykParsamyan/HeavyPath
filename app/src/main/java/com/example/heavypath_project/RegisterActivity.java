@@ -4,19 +4,18 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
-
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -27,7 +26,7 @@ public class RegisterActivity extends AppCompatActivity {
     private static final String TAG = "RegisterActivity";
 
     private EditText usernameEditText, emailEditText, passwordEditText, confirmPasswordEditText;
-    private TextView usernameErrorTextView; // TextView to display the error
+    private TextView usernameErrorTextView; // TextView to display errors
     private Button registerButton;
 
     private FirebaseAuth mAuth;
@@ -40,7 +39,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         // Initialize UI components
         usernameEditText = findViewById(R.id.username);
-        usernameErrorTextView = findViewById(R.id.username_error); // TextView for inline error
+        usernameErrorTextView = findViewById(R.id.username_error); // TextView for inline errors
         emailEditText = findViewById(R.id.email);
         passwordEditText = findViewById(R.id.password);
         confirmPasswordEditText = findViewById(R.id.confirm_password);
@@ -150,10 +149,10 @@ public class RegisterActivity extends AppCompatActivity {
         user.put("email", email);
         user.put("password", hashedPassword); // Store hashed password
 
+        // Save user data to Firestore at /users/{userId}
         db.collection("users").document(userId).set(user).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                usernameErrorTextView.setVisibility(View.GONE);
-                Toast.makeText(this, "User registered successfully! Please verify your email.", Toast.LENGTH_SHORT).show();
+                initializeAnnouncementSubcollection(userId); // Initialize the announcement subcollection
             } else {
                 Log.e(TAG, "Error saving user data: " + task.getException().getMessage());
                 usernameErrorTextView.setText("Error saving user data: " + task.getException().getMessage());
@@ -162,8 +161,31 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
+    private void initializeAnnouncementSubcollection(String userId) {
+        // Create an empty subcollection named "announcement"
+        Map<String, Object> emptyAnnouncement = new HashMap<>();
+        emptyAnnouncement.put("initialized", true); // Optional initialization flag
+
+        db.collection("users")
+                .document(userId)
+                .collection("announcement")
+                .document("initial")
+                .set(emptyAnnouncement)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        usernameErrorTextView.setVisibility(View.GONE);
+                        Toast.makeText(this, "User registered successfully! Announcement section initialized.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Log.e(TAG, "Error initializing announcement subcollection: " + task.getException().getMessage());
+                        usernameErrorTextView.setText("Error initializing announcements: " + task.getException().getMessage());
+                        usernameErrorTextView.setVisibility(View.VISIBLE);
+                    }
+                });
+    }
+
     private String hashPassword(String password) {
         // Hash the password (example using Base64; replace with a secure hash algorithm like BCrypt in production)
         return Base64.encodeToString(password.getBytes(StandardCharsets.UTF_8), Base64.DEFAULT).trim();
     }
 }
+

@@ -1,45 +1,72 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="8dp"
+    android:layout_marginTop="120dp"
+    android:background="@drawable/border_black">
 
     <ImageView
         android:id="@+id/announcement_image"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="150dp"
         android:scaleType="centerCrop"
-        android:layout_marginBottom="8dp" />
+        android:contentDescription="Announcement Image" />
 
-    <TextView
-        android:id="@+id/announcement_title"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Title"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="4dp" />
+        android:orientation="vertical"
+        android:background="@color/yellow"
+        android:padding="8dp">
 
-    <TextView
-        android:id="@+id/announcement_car_model"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Car Model"
-        android:textSize="16sp"
-        android:layout_marginBottom="4dp" />
+        <TextView
+            android:id="@+id/announcement_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:textColor="#000000" />
 
-    <TextView
-        android:id="@+id/announcement_renting_price"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Rent Price"
-        android:textSize="16sp"
-        android:layout_marginBottom="4dp" />
+        <TextView
+            android:id="@+id/announcement_car_model"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Car Model"
+            android:textSize="14sp"
+            android:textColor="#000000"
+            android:layout_marginTop="4dp" />
 
-    <TextView
-        android:id="@+id/announcement_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Description"
-        android:textSize="14sp" />
+        <TextView
+            android:id="@+id/announcement_renting_price"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Renting Price"
+            android:textSize="14sp"
+            android:textColor="#000000"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/announcement_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Description"
+            android:textSize="14sp"
+            android:textColor="#000000"
+            android:layout_marginTop="4dp" />
+
+        <TextView
+            android:id="@+id/textContact"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Contact: user@example.com"
+            android:textSize="14sp"
+            android:textColor="#000000"
+            android:layout_marginTop="8dp"
+            android:textStyle="italic" />
+    </LinearLayout>
 </LinearLayout>

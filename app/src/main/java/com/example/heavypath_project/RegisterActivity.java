@@ -152,6 +152,8 @@ public class RegisterActivity extends AppCompatActivity {
         // Save user data to Firestore at /users/{userId}
         db.collection("users").document(userId).set(user).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                usernameErrorTextView.setVisibility(View.GONE);
+                Toast.makeText(this, "User registered successfully! Please verify your email.", Toast.LENGTH_SHORT).show();
                 initializeAnnouncementSubcollection(userId); // Initialize the announcement subcollection
             } else {
                 Log.e(TAG, "Error saving user data: " + task.getException().getMessage());
@@ -188,4 +190,3 @@ public class RegisterActivity extends AppCompatActivity {
         return Base64.encodeToString(password.getBytes(StandardCharsets.UTF_8), Base64.DEFAULT).trim();
     }
 }
-

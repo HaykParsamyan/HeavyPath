@@ -32,7 +32,7 @@ public class AnnouncementAdapter extends RecyclerView.Adapter<AnnouncementAdapte
     @Override
     public void onBindViewHolder(@NonNull AnnouncementViewHolder holder, int position) {
         Announcement announcement = announcementList.get(position);
-        holder.imageView.setImageURI(announcement.getImageUri());
+        holder.imageView.setImageURI(Uri.parse(announcement.getImageUri()));
         holder.titleTextView.setText(announcement.getTitle());
         holder.carModelTextView.setText(announcement.getCarModel());
         holder.rentingPriceTextView.setText(String.format("Rent: %s/hour", announcement.getRentingPrice()));

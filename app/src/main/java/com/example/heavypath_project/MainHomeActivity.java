@@ -2,8 +2,6 @@ package com.example.heavypath_project;
 
 import android.Manifest;
 import android.app.AlertDialog;
-import com.example.heavypath_project.UserAdapter;
-
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -36,6 +35,7 @@ import java.util.List;
 
 public class MainHomeActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainHomeActivity";
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int CAPTURE_IMAGE_REQUEST = 2;
     private static final int CAMERA_PERMISSION_CODE = 100;
@@ -105,6 +105,9 @@ public class MainHomeActivity extends AppCompatActivity {
         plusButton.setOnClickListener(v -> openPostAnnouncementDialog());
         chatButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ChatActivity.class)));
         profileButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ProfileActivity.class)));
+
+        // Load announcements from Firestore
+        loadAnnouncements();
     }
 
     // Search Firestore by username
@@ -123,6 +126,25 @@ public class MainHomeActivity extends AppCompatActivity {
                         userAdapter.notifyDataSetChanged(); // Update RecyclerView with new results
                     } else {
                         Toast.makeText(this, "Error searching users: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    // Load announcements from Firestore
+    private void loadAnnouncements() {
+        db.collection("announcements")
+                .orderBy("timestamp") // Sort by timestamp
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        announcementList.clear();
+                        for (DocumentSnapshot document : task.getResult()) {
+                            Announcement announcement = document.toObject(Announcement.class);
+                            announcementList.add(announcement);
+                        }
+                        announcementAdapter.notifyDataSetChanged(); // Refresh RecyclerView
+                    } else {
+                        Toast.makeText(this, "Error loading announcements: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -204,11 +226,17 @@ public class MainHomeActivity extends AppCompatActivity {
             return;
         }
 
-        Announcement announcement = new Announcement(imageUri, title, carModel, rentingPrice, description);
-        announcementList.add(announcement); // Add announcement to the list
-        announcementAdapter.notifyDataSetChanged(); // Update RecyclerView
-
-        Toast.makeText(this, "Announcement posted successfully", Toast.LENGTH_SHORT).show();
+        Announcement announcement = new Announcement(imageUri.toString(), title, carModel, rentingPrice, description);
+        db.collection("announcements")
+                .add(announcement)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(this, "Announcement posted successfully", Toast.LENGTH_SHORT).show();
+                        loadAnnouncements(); // Refresh RecyclerView
+                    } else {
+                        Toast.makeText(this, "Error posting announcement: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         if (postDialog != null) {
             postDialog.dismiss();
@@ -222,13 +250,17 @@ public class MainHomeActivity extends AppCompatActivity {
 
         if (resultCode == RESULT_OK) {
             if (requestCode == PICK_IMAGE_REQUEST && data != null && data.getData() != null) {
+                // Image picked from gallery
                 imageUri = data.getData();
+                Toast.makeText(this, "Image selected successfully!", Toast.LENGTH_SHORT).show();
             } else if (requestCode == CAPTURE_IMAGE_REQUEST && data != null && data.getExtras() != null) {
+                // Image captured with camera
                 if (data.getData() != null) {
                     imageUri = data.getData();
                 } else if (data.getExtras().get("data") != null) {
                     Bitmap photo = (Bitmap) data.getExtras().get("data");
-                    Toast.makeText(this, "Captured image successfully", Toast.LENGTH_SHORT).show();
+                    imageUri = getImageUriFromBitmap(photo); // Convert Bitmap to Uri
+                    Toast.makeText(this, "Image captured successfully!", Toast.LENGTH_SHORT).show();
                 }
             } else {
                 Toast.makeText(this, "Failed to retrieve image", Toast.LENGTH_SHORT).show();
@@ -237,4 +269,26 @@ public class MainHomeActivity extends AppCompatActivity {
             Toast.makeText(this, "Action cancelled", Toast.LENGTH_SHORT).show();
         }
     }
+
+    // Convert Bitmap to Uri
+    private Uri getImageUriFromBitmap(Bitmap bitmap) {
+        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "CapturedImage", null);
+        return Uri.parse(path);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, open camera
+                captureImage();
+            } else {
+                Toast.makeText(this, "Camera permission is required to capture images.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }
+
+

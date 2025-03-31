@@ -47,6 +47,8 @@
             android:name=".SettingsActivity"
             android:exported="true" />
 
+
+
         <!-- ChatActivity -->
         <activity
             android:name=".ChatActivity"

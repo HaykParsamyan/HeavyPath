@@ -15,11 +15,10 @@ import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -31,19 +30,18 @@ import java.util.UUID;
 
 public class PostAnnouncementDialog extends AppCompatDialogFragment {
 
-    private static final int REQUEST_IMAGE_CAPTURE = 1;
-    private static final int PICK_IMAGE = 2;
+    private static final int PICK_IMAGE_REQUEST = 1;
+    private static final int CAPTURE_IMAGE_REQUEST = 2;
 
     private ImageView imagePreview;
     private EditText editTextTitle, editTextCarModel, editTextRentingPrice, editTextDescription;
-    private ImageButton buttonCaptureImage, buttonUploadImage;
+    private ImageButton buttonUploadImage, buttonCaptureImage;
     private Button buttonPost;
 
-    private Uri selectedImageUri;
+    private Uri imageUri;
 
     private FirebaseFirestore firestore;
     private FirebaseStorage storage;
-    private FirebaseAuth auth;
 
     @NonNull
     @Override
@@ -54,12 +52,9 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
 
         builder.setView(view);
 
-        // Initialize Firebase services
         firestore = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
-        auth = FirebaseAuth.getInstance();
 
-        // Initialize UI components
         initializeUI(view);
 
         return builder.create();
@@ -71,32 +66,27 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
         editTextCarModel = view.findViewById(R.id.editTextCarModel);
         editTextRentingPrice = view.findViewById(R.id.editTextRentingPrice);
         editTextDescription = view.findViewById(R.id.editTextDescription);
-        buttonCaptureImage = view.findViewById(R.id.buttonCaptureImage);
         buttonUploadImage = view.findViewById(R.id.buttonUploadImage);
+        buttonCaptureImage = view.findViewById(R.id.buttonCaptureImage);
         buttonPost = view.findViewById(R.id.buttonPost);
 
-        // Capture photo using the camera
-        buttonCaptureImage.setOnClickListener(v -> capturePhoto());
-
-        // Select image from the gallery
         buttonUploadImage.setOnClickListener(v -> selectPhotoFromGallery());
-
-        // Post the announcement
+        buttonCaptureImage.setOnClickListener(v -> captureImage());
         buttonPost.setOnClickListener(v -> validateAndPostAnnouncement());
-    }
-
-    private void capturePhoto() {
-        Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (captureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
-            startActivityForResult(captureIntent, REQUEST_IMAGE_CAPTURE);
-        } else {
-            Toast.makeText(requireActivity(), "Camera not available", Toast.LENGTH_SHORT).show();
-        }
     }
 
     private void selectPhotoFromGallery() {
         Intent pickIntent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(pickIntent, PICK_IMAGE);
+        startActivityForResult(pickIntent, PICK_IMAGE_REQUEST);
+    }
+
+    private void captureImage() {
+        Intent captureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (captureIntent.resolveActivity(requireActivity().getPackageManager()) != null) {
+            startActivityForResult(captureIntent, CAPTURE_IMAGE_REQUEST);
+        } else {
+            Toast.makeText(requireActivity(), "No camera app found.", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void validateAndPostAnnouncement() {
@@ -105,8 +95,8 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
         String rentingPrice = editTextRentingPrice.getText().toString().trim();
         String description = editTextDescription.getText().toString().trim();
 
-        if (selectedImageUri == null) {
-            Toast.makeText(requireActivity(), "Please select or capture an image.", Toast.LENGTH_SHORT).show();
+        if (imageUri == null) {
+            Toast.makeText(requireActivity(), "Please upload or capture an image.", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -115,73 +105,61 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
             return;
         }
 
-        // Proceed with uploading the image
         uploadImageToFirebase(title, carModel, rentingPrice, description);
     }
 
     private void uploadImageToFirebase(String title, String carModel, String rentingPrice, String description) {
-        String uniqueId = UUID.randomUUID().toString(); // Generate unique ID for the image
+        String uniqueId = UUID.randomUUID().toString();
         StorageReference storageReference = storage.getReference("announcement_images/" + uniqueId);
 
-        storageReference.putFile(selectedImageUri)
-                .addOnSuccessListener(taskSnapshot ->
-                        storageReference.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                            String imageUrl = downloadUri.toString();
-                            saveAnnouncementToFirestore(title, carModel, rentingPrice, description, imageUrl);
-                        })
-                )
-                .addOnFailureListener(e -> {
-                    Toast.makeText(requireActivity(), "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+        storageReference.putFile(imageUri)
+                .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                    saveAnnouncementToFirestore(downloadUri.toString(), title, carModel, rentingPrice, description);
+                }))
+                .addOnFailureListener(e -> Toast.makeText(requireActivity(), "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void saveAnnouncementToFirestore(String title, String carModel, String rentingPrice, String description, String imageUrl) {
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser == null) {
-            Toast.makeText(requireActivity(), "User not logged in.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String email = currentUser.getEmail(); // Get user's email
-
+    private void saveAnnouncementToFirestore(String imageUrl, String title, String carModel, String rentingPrice, String description) {
         Map<String, Object> announcement = new HashMap<>();
         announcement.put("title", title);
-        announcement.put("carModel", carModel);
-        announcement.put("rentingPrice", rentingPrice);
+        announcement.put("model", carModel);
+        announcement.put("price", rentingPrice);
         announcement.put("description", description);
-        announcement.put("imageUrl", imageUrl);
-        announcement.put("email", email);
+        announcement.put("image", imageUrl);
+        announcement.put("timestamp", com.google.firebase.Timestamp.now());
 
-        // Save data to Firestore in 'announcement/Photos'
-        firestore.collection("announcement")
-                .document("Photos")
-                .set(announcement)
-                .addOnSuccessListener(aVoid -> {
+        firestore.collection("announcements")
+                .add(announcement)
+                .addOnSuccessListener(documentReference -> {
                     Toast.makeText(requireActivity(), "Announcement posted successfully!", Toast.LENGTH_SHORT).show();
-                    dismiss(); // Close the dialog
+                    ((MainHomeActivity) requireActivity()).loadAnnouncements(); // Notify MainHomeActivity to refresh announcements
                 })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(requireActivity(), "Failed to save announcement: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                });
+                .addOnFailureListener(e -> Toast.makeText(requireActivity(), "Failed to save announcement: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == requireActivity().RESULT_OK) {
-            if (requestCode == REQUEST_IMAGE_CAPTURE && data != null && data.getExtras() != null) {
-                Bitmap photo = (Bitmap) data.getExtras().get("data");
-                imagePreview.setImageBitmap(photo);
-            } else if (requestCode == PICK_IMAGE && data != null && data.getData() != null) {
-                selectedImageUri = data.getData();
+            if (requestCode == PICK_IMAGE_REQUEST && data != null && data.getData() != null) {
+                imageUri = data.getData();
                 try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), selectedImageUri);
+                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
                     imagePreview.setImageBitmap(bitmap);
                 } catch (IOException e) {
                     Toast.makeText(requireActivity(), "Error loading image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
+            } else if (requestCode == CAPTURE_IMAGE_REQUEST && data != null && data.getExtras() != null) {
+                Bitmap photo = (Bitmap) data.getExtras().get("data");
+                imagePreview.setImageBitmap(photo);
+                imageUri = getImageUriFromBitmap(photo);
             }
         }
+    }
+
+    private Uri getImageUriFromBitmap(Bitmap bitmap) {
+        String path = MediaStore.Images.Media.insertImage(requireActivity().getContentResolver(), bitmap, "CapturedImage", null);
+        return Uri.parse(path);
     }
 }

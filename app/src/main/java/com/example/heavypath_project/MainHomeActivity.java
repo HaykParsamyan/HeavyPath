@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -33,9 +32,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainHomeActivity extends AppCompatActivity {
+public class MainHomeActivity extends AppCompatActivity implements AnnouncementRefresher {
 
-    private static final String TAG = "MainHomeActivity";
     private static final int PICK_IMAGE_REQUEST = 1;
     private static final int CAPTURE_IMAGE_REQUEST = 2;
     private static final int CAMERA_PERMISSION_CODE = 100;
@@ -47,8 +45,8 @@ public class MainHomeActivity extends AppCompatActivity {
     private RecyclerView recyclerViewSearchResults, recyclerViewAnnouncements;
     private UserAdapter userAdapter;
     private AnnouncementAdapter announcementAdapter;
-    private List<User> userList; // For search results
-    private List<Announcement> announcementList; // For announcements
+    private List<User> userList;
+    private List<Announcement> announcementList;
 
     private FirebaseFirestore db;
 
@@ -57,36 +55,31 @@ public class MainHomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_home);
 
-        // Initialize Firestore
         db = FirebaseFirestore.getInstance();
 
-        // Initialize buttons
         plusButton = findViewById(R.id.plus_button);
         chatButton = findViewById(R.id.chat_button);
         profileButton = findViewById(R.id.profile_button);
 
-        // Initialize RecyclerView for search results
         recyclerViewSearchResults = findViewById(R.id.recyclerViewSearchResults);
         userList = new ArrayList<>();
         userAdapter = new UserAdapter(this, userList);
         recyclerViewSearchResults.setAdapter(userAdapter);
         recyclerViewSearchResults.setLayoutManager(new LinearLayoutManager(this));
 
-        // Initialize RecyclerView for announcements
         recyclerViewAnnouncements = findViewById(R.id.recyclerViewAnnouncements);
         announcementList = new ArrayList<>();
         announcementAdapter = new AnnouncementAdapter(this, announcementList);
         recyclerViewAnnouncements.setAdapter(announcementAdapter);
         recyclerViewAnnouncements.setLayoutManager(new LinearLayoutManager(this));
 
-        // Configure SearchView for username search
         SearchView searchView = findViewById(R.id.search_view);
         searchView.setQueryHint("Search by username");
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (!TextUtils.isEmpty(query)) {
-                    searchUsersByUsername(query); // Query Firestore for username
+                    searchUsersByUsername(query);
                 }
                 return true;
             }
@@ -94,46 +87,43 @@ public class MainHomeActivity extends AppCompatActivity {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (TextUtils.isEmpty(newText)) {
-                    userList.clear(); // Clear search results
-                    userAdapter.notifyDataSetChanged(); // Update RecyclerView
+                    userList.clear();
+                    userAdapter.notifyDataSetChanged();
                 }
                 return true;
             }
         });
 
-        // Button click listeners
         plusButton.setOnClickListener(v -> openPostAnnouncementDialog());
         chatButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ChatActivity.class)));
         profileButton.setOnClickListener(v -> startActivity(new Intent(MainHomeActivity.this, ProfileActivity.class)));
 
-        // Load announcements from Firestore
         loadAnnouncements();
     }
 
-    // Search Firestore by username
     private void searchUsersByUsername(String username) {
         db.collection("users")
-                .whereEqualTo("username", username) // Match 'username' field in Firestore
+                .whereEqualTo("username", username)
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
                         QuerySnapshot querySnapshot = task.getResult();
-                        userList.clear(); // Clear previous search results
+                        userList.clear();
                         for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                            User user = document.toObject(User.class); // Convert document to User object
+                            User user = document.toObject(User.class);
                             userList.add(user);
                         }
-                        userAdapter.notifyDataSetChanged(); // Update RecyclerView with new results
+                        userAdapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(this, "Error searching users: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    // Load announcements from Firestore
-    private void loadAnnouncements() {
+    @Override
+    public void loadAnnouncements() {
         db.collection("announcements")
-                .orderBy("timestamp") // Sort by timestamp
+                .orderBy("timestamp")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -142,14 +132,13 @@ public class MainHomeActivity extends AppCompatActivity {
                             Announcement announcement = document.toObject(Announcement.class);
                             announcementList.add(announcement);
                         }
-                        announcementAdapter.notifyDataSetChanged(); // Refresh RecyclerView
+                        announcementAdapter.notifyDataSetChanged();
                     } else {
                         Toast.makeText(this, "Error loading announcements: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
 
-    // Open dialog to post a new announcement
     private void openPostAnnouncementDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
@@ -173,14 +162,12 @@ public class MainHomeActivity extends AppCompatActivity {
         postDialog.show();
     }
 
-    // File chooser for image upload
     private void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
-    // Capture image using camera
     private void captureImage() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, CAMERA_PERMISSION_CODE);
@@ -194,7 +181,6 @@ public class MainHomeActivity extends AppCompatActivity {
         }
     }
 
-    // Post an announcement with validation
     private void postAnnouncement(EditText editTextTitle, EditText editTextCarModel, EditText editTextRentingPrice, EditText editTextDescription) {
         String title = editTextTitle.getText().toString().trim();
         String carModel = editTextCarModel.getText().toString().trim();
@@ -226,40 +212,52 @@ public class MainHomeActivity extends AppCompatActivity {
             return;
         }
 
-        Announcement announcement = new Announcement(imageUri.toString(), title, carModel, rentingPrice, description);
+        // Create announcement with timestamp
+        Announcement announcement = new Announcement(
+                imageUri.toString(),
+                title,
+                carModel,
+                rentingPrice,
+                description,
+                System.currentTimeMillis()
+        );
+
+        // Add the new announcement to the list directly
+        announcementList.add(announcement);
+
+        // Notify the adapter to refresh the RecyclerView
+        announcementAdapter.notifyItemInserted(announcementList.size() - 1); // Add new item at the end
+
+        // Now post the announcement to Firestore
         db.collection("announcements")
                 .add(announcement)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         Toast.makeText(this, "Announcement posted successfully", Toast.LENGTH_SHORT).show();
-                        loadAnnouncements(); // Refresh RecyclerView
+                        // You don't need to reload the announcements from Firestore anymore, since it's already in the list
+                        if (postDialog != null) postDialog.dismiss();
                     } else {
-                        Toast.makeText(this, "Error posting announcement: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Error posting: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
-
-        if (postDialog != null) {
-            postDialog.dismiss();
-        }
     }
 
-    // Handle results from intents (e.g., image picker or camera capture)
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode == RESULT_OK) {
             if (requestCode == PICK_IMAGE_REQUEST && data != null && data.getData() != null) {
-                // Image picked from gallery
                 imageUri = data.getData();
                 Toast.makeText(this, "Image selected successfully!", Toast.LENGTH_SHORT).show();
             } else if (requestCode == CAPTURE_IMAGE_REQUEST && data != null && data.getExtras() != null) {
-                // Image captured with camera
                 if (data.getData() != null) {
                     imageUri = data.getData();
                 } else if (data.getExtras().get("data") != null) {
                     Bitmap photo = (Bitmap) data.getExtras().get("data");
-                    imageUri = getImageUriFromBitmap(photo); // Convert Bitmap to Uri
+                    imageUri = getImageUriFromBitmap(photo);
                     Toast.makeText(this, "Image captured successfully!", Toast.LENGTH_SHORT).show();
                 }
             } else {
@@ -270,7 +268,6 @@ public class MainHomeActivity extends AppCompatActivity {
         }
     }
 
-    // Convert Bitmap to Uri
     private Uri getImageUriFromBitmap(Bitmap bitmap) {
         String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "CapturedImage", null);
         return Uri.parse(path);
@@ -282,7 +279,6 @@ public class MainHomeActivity extends AppCompatActivity {
 
         if (requestCode == CAMERA_PERMISSION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, open camera
                 captureImage();
             } else {
                 Toast.makeText(this, "Camera permission is required to capture images.", Toast.LENGTH_SHORT).show();
@@ -290,5 +286,3 @@ public class MainHomeActivity extends AppCompatActivity {
         }
     }
 }
-
-

@@ -19,7 +19,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatDialogFragment;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -119,23 +122,42 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
                 .addOnFailureListener(e -> Toast.makeText(requireActivity(), "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void saveAnnouncementToFirestore(String imageUrl, String title, String carModel, String rentingPrice, String description) {
+    private void saveAnnouncementToFirestore(String title, String carModel, String rentingPrice, String description, String encodedImage) {
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+
+        // ✅ Retrieve the email of the currently logged-in user
+        String userEmail = auth.getCurrentUser() != null ? auth.getCurrentUser().getEmail() : "Unknown";
+
+        if (auth.getCurrentUser() == null) {
+            Toast.makeText(requireActivity(), "User not logged in!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // 🔥 Create announcement object including the user email
         Map<String, Object> announcement = new HashMap<>();
         announcement.put("title", title);
         announcement.put("model", carModel);
         announcement.put("price", rentingPrice);
         announcement.put("description", description);
-        announcement.put("image", imageUrl);
-        announcement.put("timestamp", com.google.firebase.Timestamp.now());
+        announcement.put("imageBase64", encodedImage); // ✅ Store image as Base64 string
+        announcement.put("email", userEmail); // ✅ Save user's email
+        announcement.put("timestamp", Timestamp.now());
 
+        // 🔥 Save to Firestore
         firestore.collection("announcements")
-                .add(announcement)
-                .addOnSuccessListener(documentReference -> {
-                    Toast.makeText(requireActivity(), "Announcement posted successfully!", Toast.LENGTH_SHORT).show();
-                    ((MainHomeActivity) requireActivity()).loadAnnouncements(); // Notify MainHomeActivity to refresh announcements
-                })
+                .document("Document") // Replace with actual document ID
+                .set(announcement, SetOptions.merge())
+                .addOnSuccessListener(aVoid -> Toast.makeText(requireActivity(), "Announcement posted successfully!", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> Toast.makeText(requireActivity(), "Failed to save announcement: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
+
+
+
+
+
+
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

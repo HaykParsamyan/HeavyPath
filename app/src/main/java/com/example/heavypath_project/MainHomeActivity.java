@@ -115,7 +115,7 @@ public class MainHomeActivity extends AppCompatActivity implements AnnouncementR
                         }
                         userAdapter.notifyDataSetChanged();
                     } else {
-                        Toast.makeText(this, "Error searching users: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Error searching user: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

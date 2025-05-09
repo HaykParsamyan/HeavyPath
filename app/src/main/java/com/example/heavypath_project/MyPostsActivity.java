@@ -53,7 +53,7 @@ public class MyPostsActivity extends AppCompatActivity {
                         }
                         announcementAdapter.notifyDataSetChanged();
                     } else {
-                        Toast.makeText(this, "Failed to fetch posts: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Failed to fetch all posts: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

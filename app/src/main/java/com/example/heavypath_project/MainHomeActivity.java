@@ -119,7 +119,6 @@ public class MainHomeActivity extends AppCompatActivity implements AnnouncementR
                     }
                 });
     }
-
     @Override
     public void loadAnnouncements() {
         db.collection("announcements")

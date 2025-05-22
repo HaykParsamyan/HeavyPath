@@ -161,6 +161,7 @@ public class MainHomeActivity extends AppCompatActivity implements AnnouncementR
         postDialog.show();
     }
 
+
     private void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");

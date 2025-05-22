@@ -11,9 +11,9 @@
     <ImageView
         android:id="@+id/announcement_image"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="Announcement Image" />
+        android:layout_height="250dp"
+        android:contentDescription="Announcement Image"
+        android:scaleType="centerCrop" />
 
     <LinearLayout
         android:layout_width="match_parent"

@@ -161,22 +161,6 @@ public class MainHomeActivity extends AppCompatActivity implements AnnouncementR
         postDialog.show();
     }
 
-    private void fetchAnnouncements() {
-        db.collection("announcements")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .addSnapshotListener((queryDocumentSnapshots, e) -> {
-                    if (e != null) {
-                        Log.e("Firebase", "Error fetching announcements", e);
-                        return;
-                    }
-
-                    announcementList.clear();
-                    for (DocumentSnapshot doc : queryDocumentSnapshots) {
-                        announcementList.add(doc.toObject(Announcement.class));
-                    }
-                    announcementAdapter.notifyDataSetChanged();
-                });
-    }
     private void openFileChooser() {
         Intent intent = new Intent(Intent.ACTION_PICK);
         intent.setType("image/*");

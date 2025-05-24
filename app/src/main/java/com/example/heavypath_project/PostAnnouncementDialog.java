@@ -98,6 +98,14 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
         String rentingPrice = editTextRentingPrice.getText().toString().trim();
         String description = editTextDescription.getText().toString().trim();
 
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : null;
+
+        if (userId == null) {
+            Toast.makeText(requireActivity(), "User not logged in!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         if (imageUri == null) {
             Toast.makeText(requireActivity(), "Please upload or capture an image.", Toast.LENGTH_SHORT).show();
             return;
@@ -108,50 +116,38 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
             return;
         }
 
-        uploadImageToFirebase(title, carModel, rentingPrice, description);
+        uploadImageToFirebase(title, carModel, rentingPrice, description, userId);
     }
 
-    private void uploadImageToFirebase(String title, String carModel, String rentingPrice, String description) {
+    private void uploadImageToFirebase(String title, String carModel, String rentingPrice, String description, String userId) {
         String uniqueId = UUID.randomUUID().toString();
         StorageReference storageReference = storage.getReference("announcement_images/" + uniqueId);
 
         storageReference.putFile(imageUri)
                 .addOnSuccessListener(taskSnapshot -> storageReference.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                    saveAnnouncementToFirestore(downloadUri.toString(), title, carModel, rentingPrice, description);
+                    saveAnnouncementToFirestore(downloadUri.toString(), title, carModel, rentingPrice, description, userId);
                 }))
                 .addOnFailureListener(e -> Toast.makeText(requireActivity(), "Image upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
-    private void saveAnnouncementToFirestore(String title, String carModel, String rentingPrice, String description, String encodedImage) {
-        FirebaseAuth auth = FirebaseAuth.getInstance();
+    private void saveAnnouncementToFirestore(String imageUri, String title, String carModel, String rentingPrice, String description, String userId) {
         FirebaseFirestore firestore = FirebaseFirestore.getInstance();
 
-        // ✅ Retrieve the email of the currently logged-in user
-        String userEmail = auth.getCurrentUser() != null ? auth.getCurrentUser().getEmail() : "Unknown";
-
-        if (auth.getCurrentUser() == null) {
-            Toast.makeText(requireActivity(), "User not logged in!", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // 🔥 Create announcement object including the user email
         Map<String, Object> announcement = new HashMap<>();
         announcement.put("title", title);
-        announcement.put("model", carModel);
-        announcement.put("price", rentingPrice);
+        announcement.put("carModel", carModel);
+        announcement.put("rentingPrice", rentingPrice);
         announcement.put("description", description);
-        announcement.put("imageBase64", encodedImage); // ✅ Store image as Base64 string
-        announcement.put("email", userEmail); // ✅ Save user's email
-        announcement.put("timestamp", Timestamp.now());
+        announcement.put("imageUri", imageUri);
+        announcement.put("userId", userId);
+        announcement.put("timestamp", Timestamp.now()); // ✅ Correct Timestamp format
 
-        // 🔥 Save to Firestore
         firestore.collection("announcements")
-                .document("Document") // Replace with actual document ID
+                .document(UUID.randomUUID().toString())
                 .set(announcement, SetOptions.merge())
                 .addOnSuccessListener(aVoid -> Toast.makeText(requireActivity(), "Announcement posted successfully!", Toast.LENGTH_SHORT).show())
                 .addOnFailureListener(e -> Toast.makeText(requireActivity(), "Failed to save announcement: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
-
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -160,16 +156,13 @@ public class PostAnnouncementDialog extends AppCompatDialogFragment {
         if (resultCode == requireActivity().RESULT_OK) {
             if (requestCode == PICK_IMAGE_REQUEST && data != null && data.getData() != null) {
                 imageUri = data.getData();
-                try {
-                    Bitmap bitmap = MediaStore.Images.Media.getBitmap(requireActivity().getContentResolver(), imageUri);
-                    imagePreview.setImageBitmap(bitmap);
-                } catch (IOException e) {
-                    Toast.makeText(requireActivity(), "Error loading image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+                imagePreview.setImageURI(imageUri); // ✅ Safely update UI
+                Toast.makeText(requireActivity(), "Image selected successfully!", Toast.LENGTH_SHORT).show();
             } else if (requestCode == CAPTURE_IMAGE_REQUEST && data != null && data.getExtras() != null) {
                 Bitmap photo = (Bitmap) data.getExtras().get("data");
                 imagePreview.setImageBitmap(photo);
                 imageUri = getImageUriFromBitmap(photo);
+                Toast.makeText(requireActivity(), "Image captured successfully!", Toast.LENGTH_SHORT).show();
             }
         }
     }

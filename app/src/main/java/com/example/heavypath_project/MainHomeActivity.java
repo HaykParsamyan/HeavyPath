@@ -50,6 +50,11 @@ public class MainHomeActivity extends AppCompatActivity implements AnnouncementR
 
     private FirebaseFirestore db;
 
+    private String getDrawableUri(int drawableId) {
+        return "android.resource://" + getPackageName() + "/" + drawableId;
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -267,6 +272,10 @@ public class MainHomeActivity extends AppCompatActivity implements AnnouncementR
             Toast.makeText(this, "Action cancelled", Toast.LENGTH_SHORT).show();
         }
     }
+
+
+
+
 
     private Uri getImageUriFromBitmap(Bitmap bitmap) {
         String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, "CapturedImage", null);

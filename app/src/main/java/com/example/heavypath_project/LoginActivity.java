@@ -3,7 +3,6 @@ package com.example.heavypath_project;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.content.Intent;
-
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,7 +21,8 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText;
     private Button loginButton;
     private Button registerButton;
-    private TextView forgotPasswordTextView; // New TextView for "Forgot Password"
+    private Button logSamsungButton; // ✅ Added Log_Samsung button
+    private TextView forgotPasswordTextView;
 
     private FirebaseAuth mAuth;
 
@@ -36,7 +36,8 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.password);
         loginButton = findViewById(R.id.login_button);
         registerButton = findViewById(R.id.register_button);
-        forgotPasswordTextView = findViewById(R.id.forgot_password); // Forgot Password
+        forgotPasswordTextView = findViewById(R.id.forgot_password);
+        logSamsungButton = findViewById(R.id.log_samsung_button); // ✅ Added button
 
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
@@ -46,20 +47,21 @@ public class LoginActivity extends AppCompatActivity {
 
         // Register button click listener
         registerButton.setOnClickListener(v -> {
-            // Navigate to RegisterActivity
             Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
             startActivity(intent);
         });
 
         // Forgot password click listener
         forgotPasswordTextView.setOnClickListener(v -> sendPasswordResetEmail());
+
+        // Log_Samsung button click listener
+        logSamsungButton.setOnClickListener(v -> logInSamsung()); // ✅ Handles quick login
     }
 
     private void loginUser() {
         String email = emailEditText.getText().toString().trim();
         String password = passwordEditText.getText().toString().trim();
 
-        // Validate email and password input fields
         if (TextUtils.isEmpty(email)) {
             emailEditText.setError("Email is required");
             return;
@@ -69,17 +71,12 @@ public class LoginActivity extends AppCompatActivity {
             return;
         }
 
-        // Authenticate user with Firebase
         mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                // Login successful
                 Toast.makeText(LoginActivity.this, "Login successful!", Toast.LENGTH_SHORT).show();
-                // Navigate to MainHomeActivity
-                Intent intent = new Intent(LoginActivity.this, MainHomeActivity.class);
-                startActivity(intent);
+                startActivity(new Intent(LoginActivity.this, MainHomeActivity.class));
                 finish();
             } else {
-                // Login failed
                 String errorMessage = task.getException().getMessage();
                 Log.e(TAG, "Login failed: " + errorMessage);
                 Toast.makeText(LoginActivity.this, "Login failed: " + errorMessage, Toast.LENGTH_LONG).show();
@@ -87,16 +84,31 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    private void logInSamsung() {
+        String samsungEmail = "individualproject2025@gmail.com";
+        String samsungPassword = "Samsung2025";
+
+        mAuth.signInWithEmailAndPassword(samsungEmail, samsungPassword).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(LoginActivity.this, "Logged in as Samsung!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(LoginActivity.this, MainHomeActivity.class));
+                finish();
+            } else {
+                String errorMessage = task.getException().getMessage();
+                Log.e(TAG, "Samsung login failed: " + errorMessage);
+                Toast.makeText(LoginActivity.this, "Samsung login failed: " + errorMessage, Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private void sendPasswordResetEmail() {
         String email = emailEditText.getText().toString().trim();
 
-        // Validate email input
         if (TextUtils.isEmpty(email)) {
             emailEditText.setError("Enter your email to reset your password");
             return;
         }
 
-        // Firebase Password Reset Email
         mAuth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 Toast.makeText(LoginActivity.this, "Password reset email sent!", Toast.LENGTH_SHORT).show();

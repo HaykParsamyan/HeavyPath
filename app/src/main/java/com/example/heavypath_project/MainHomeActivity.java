@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -192,60 +193,38 @@ public class MainHomeActivity extends AppCompatActivity implements AnnouncementR
         String rentingPrice = editTextRentingPrice.getText().toString().trim();
         String description = editTextDescription.getText().toString().trim();
 
-        if (TextUtils.isEmpty(title)) {
-            editTextTitle.setError("Title is required");
+        if (title.isEmpty() || carModel.isEmpty() || rentingPrice.isEmpty() || description.isEmpty()) {
+            Toast.makeText(this, "All fields must be filled!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        if (TextUtils.isEmpty(carModel)) {
-            editTextCarModel.setError("Car model is required");
-            return;
-        }
+        // Get current user ID
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        String userId = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : "anonymous";
 
-        if (TextUtils.isEmpty(rentingPrice)) {
-            editTextRentingPrice.setError("Renting price is required");
-            return;
-        }
-
-        if (TextUtils.isEmpty(description)) {
-            editTextDescription.setError("Description is required");
-            return;
-        }
-
-        if (imageUri == null) {
-            Toast.makeText(this, "Please upload or capture an image", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        // Create announcement with timestamp
-        Announcement announcement = new Announcement(
-                imageUri.toString(),
+        // Create new announcement object
+        Announcement newAnnouncement = new Announcement(
+                imageUri != null ? imageUri.toString() : "",
                 title,
                 carModel,
                 rentingPrice,
                 description,
-                System.currentTimeMillis()
+                System.currentTimeMillis(),
+                userId
         );
 
-        // Add the new announcement to the list directly
-        announcementList.add(announcement);
-
-        // Notify the adapter to refresh the RecyclerView
-        announcementAdapter.notifyItemInserted(announcementList.size() - 1); // Add new item at the end
-
-        // Now post the announcement to Firestore
-        db.collection("announcements")
-                .add(announcement)
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(this, "Announcement posted successfully", Toast.LENGTH_SHORT).show();
-                        // You don't need to reload the announcements from Firestore anymore, since it's already in the list
-                        if (postDialog != null) postDialog.dismiss();
-                    } else {
-                        Toast.makeText(this, "Error posting: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+        // Store in Firestore
+        db.collection("announcements").add(newAnnouncement).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this, "Announcement posted successfully!", Toast.LENGTH_SHORT).show();
+                postDialog.dismiss();
+                loadAnnouncements();
+            } else {
+                Toast.makeText(this, "Error posting announcement: " + task.getException().getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
+
 
 
 
